@@ -1,16 +1,21 @@
 class WebSocketService {
     private ws: WebSocket | null = null;
+    // private url = import.meta.env.MODE === 'development' ? 'ws://localhost:3000' : 'wss://exceleed.in';
     private url = 'wss://exceleed.in';
-    // private url = import.meta.env.MODE === 'development' ? 'ws://localhost:3000' : 'ws://exceleed.in:3000';
     private subscribers: ((message: any) => void)[] = [];
+    private reconnectAttempts = 0;
+    private maxReconnectAttempts = 5;
+    private reconnectInterval = 5000;
 
     connect(roomName: string) {
-        if (this.ws) return;
+        if (this.ws && this.ws.readyState !== WebSocket.CLOSED) return;
 
+        console.log(`Connecting to ${this.url} (Attempt ${this.reconnectAttempts + 1})`);
         this.ws = new WebSocket(this.url);
 
         this.ws.onopen = () => {
             console.log('WebSocket connected');
+            this.reconnectAttempts = 0;
             this.ws?.send(JSON.stringify({ type: 'SUBSCRIBE', roomName }));
         };
 
@@ -19,40 +24,28 @@ class WebSocketService {
             this.subscribers.forEach((callback) => callback(data));
         };
 
-        this.ws.onclose = () => {
-            console.log('WebSocket disconnected');
+        this.ws.onclose = (event) => {
+            console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
             this.ws = null;
-            setTimeout(() => this.connect(roomName), 1000); // Reconnect after 1 second
+            if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                this.reconnectAttempts++;
+                const delay = this.reconnectInterval * this.reconnectAttempts;
+                console.log(`Reconnecting in ${delay / 1000} seconds...`);
+                setTimeout(() => this.connect(roomName), delay);
+            } else {
+                console.error('Max reconnect attempts reached. Giving up.');
+            }
         };
 
         this.ws.onerror = (error) => {
             console.error('WebSocket error:', error);
-        };
-
-        // Handle ping from server and respond with pong
-        // this.ws.on('ping', () => {
-        //     console.log('Received ping from server');
-        //     this.ws?.pong(); // Respond with pong (browser WebSocket doesn’t support this natively, see below)
-        // });
-
-        // Optional: Send periodic pings to server (if server doesn’t ping)
-        const pingInterval = setInterval(() => {
-            if (this.ws?.readyState === WebSocket.OPEN) {
-                this.ws.send('ping'); // Custom ping message
-            }
-        }, 30000);
-
-        this.ws.onclose = () => {
-            clearInterval(pingInterval);
-            console.log('WebSocket disconnected');
-            this.ws = null;
-            setTimeout(() => this.connect(roomName), 1000);
         };
     }
 
     disconnect() {
         this.ws?.close();
         this.ws = null;
+        this.reconnectAttempts = 0;
     }
 
     onMessage(callback: (message: any) => void) {

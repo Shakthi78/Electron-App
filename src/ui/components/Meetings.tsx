@@ -20,7 +20,7 @@ export interface Meeting {
 const Meetings = () => {
     const [meetings, setMeetings] = useState<Meeting[]>([])
 
-    const roomName = 'Exceleed-1-Testing (16)';
+    const roomName = 'Exceleed-2-Elon musk (13)';
 
     // const loadMeetings = async () => {
     //     try {
@@ -58,8 +58,8 @@ const Meetings = () => {
     //   }, [])
   return (
     <div className="relative w-1/3 h-96 mt-5 overflow-y-scroll flex flex-col gap-2 custom-scrollbar mask-gradient pt-4">
-        {meetings.map((item)=>(
-          <MeetingCard {...item}/>
+        {meetings.map((item, i)=>(
+          <MeetingCard key={i} {...item}/>
         ))}
           
         </div>

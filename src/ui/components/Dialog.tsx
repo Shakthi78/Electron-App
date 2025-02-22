@@ -38,7 +38,7 @@ export default function Dialog({handleClose}: Close) {
 
   return (
     <div className="flex items-center justify-center">
-      <Button size="md" text={"Open Dialog"} reference={buttonRef} onClick={handleOpenDialog}/>
+      <Button size="md" text={"Leave"} reference={buttonRef} onClick={handleOpenDialog}/>
       <AnimatePresence>
         {isOpen && (
           <motion.div

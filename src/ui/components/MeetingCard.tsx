@@ -6,19 +6,14 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer}) 
   function separate(time: string){
     let result;
     let a = time.split(" ")
-
-
-    console.log("san", a)
     result = a[1]+ " " +a[2]
     return result;
   }
 
-  console.log(startTime)
 
   let start = separate(startTime)
-  console.log(start)
   let end = separate(endTime)
-  separate(endTime)
+  
   return (
     <div className="w-full h-40 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl" >
         <div className="flex flex-col text-medium">
