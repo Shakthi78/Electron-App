@@ -39,16 +39,16 @@ const Meetings = () => {
     }
 
     useEffect(() => {
-        fetchMeetings(roomName);
+      fetchMeetings(roomName);
 
-        webSocketService.connect(roomName);
-        const unsubscribe = webSocketService.onMessage((message) => {
-            if (message.type === 'EVENT_UPDATE' && message.roomName === roomName) {
-                fetchMeetings(roomName);
-            }
-        });
+      webSocketService.connect(roomName);
+      const unsubscribe = webSocketService.onMessage((message) => {
+        if (message.type === 'EVENT_UPDATE' && message.roomName === roomName) {
+          fetchMeetings(roomName);
+        }
+      });
 
-        return () => unsubscribe();
+      return () => unsubscribe();
     }, []);
     
       

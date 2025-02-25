@@ -1,16 +1,24 @@
 import './App.css'
-import Button from './components/Button';
+// import Button from './components/Button';
 // import MeetingCard from './components/MeetingCard'
 import { BsThreeDots } from "react-icons/bs";
+import Dialog from './components/Dialog';
+import { handleCloseClick } from './App';
 
 function SecondaryApp() {
-  const time = new Date().toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+  const handleControl = (action: string) => {
+    window.electronAPI.controlMeeting(action);
+    console.log(`Control triggered: ${action}`);
+  };
 
-  const weekday = new Date().toLocaleDateString("en-US", { weekday: "long" });
+  const handleCloseApp = () => {
+    window.electronAPI.closeApp();
+  };
+
+  const handleCloseMeeting = () => {
+    handleControl('leave')
+    window.electronAPI.closeMeeting()
+  }
 
   return (
     <div className="bg-container h-screen flex items-center flex-col">
@@ -19,29 +27,51 @@ function SecondaryApp() {
         <h2>Customizable logo</h2>
         <h2>Company Logo</h2>
       </div>     
-      <div className='w-full h-full p-5 flex justify-center items-center gap-2'>
-        <div className='w-1/3 h-96 mt-5 overflow-y-scroll custom-scrollbar flex flex-col gap-2'> 
-          {/* <MeetingCard/>
-          <MeetingCard/> 
-          <MeetingCard/>
-          <MeetingCard/>
-          <MeetingCard/> */}
-        </div>
-        <div className='w-1/3 h-96 mt-5 flex flex-col items-center'>
-          <div className='text-7xl text-center mt-10 '>
-            <h1>{time}</h1>
-            <h1 className='text-3xl'>{weekday}</h1>
-          </div> 
-
-          <div className='flex gap-2 mt-28'>
-            <Button text="Video Call" size='lg'/>
-            <Button text="Video Call" size='lg'/>
-            <Button text="Video Call" size='lg'/>
-          </div>  
-        </div>      
+       <div className='w-full h-full p-5 flex justify-center items-center gap-2'>
+          <h2 className="text-2xl">Meeting Controls</h2>
+          <div className="flex flex-wrap gap-4">
+            <button
+                className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
+                onClick={() => handleControl('mute')}
+            >
+                Mute/Unmute
+            </button>
+            <button
+                className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
+                onClick={() => handleControl('video')}
+            >
+                Video On/Off
+            </button>
+            <button
+                className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
+                onClick={() => handleControl('share')}
+            >
+                Share Screen
+            </button>
+            <button
+                className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
+                onClick={() => handleControl('hand')}
+            >
+                Raise Hand
+            </button>
+            <button
+                className="px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700"
+                onClick={handleCloseMeeting}
+            >
+                Leave
+            </button>
+            <button
+                className="px-4 py-2 bg-gray-600 rounded-lg hover:bg-gray-700"
+                onClick={handleCloseApp}
+            >
+                Close App
+            </button>
+          </div>
       </div>     
       <div className='w-full h-10 flex justify-end px-5 hover:cursor-pointer'>
         <BsThreeDots className='text-4xl'/>
+        <Dialog handleClose={handleCloseClick}/>
+        
       </div>     
     </div>
   )

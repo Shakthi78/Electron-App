@@ -1,5 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron/renderer') 
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  closeApp: () => ipcRenderer.send('close-windows')
+  closeApp: () => ipcRenderer.send('close-windows'),
+  startMeeting: (url) => ipcRenderer.send('start-meeting', url),
+  controlMeeting: (action) => ipcRenderer.send('meeting-control', action),
+  closeMeeting: () => ipcRenderer.send('close-meeting'),
 })

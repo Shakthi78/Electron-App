@@ -6,16 +6,6 @@ import { BsThreeDots } from "react-icons/bs";
 import Meetings from './components/Meetings';
 
 
-declare global {
-  interface Window {
-      electronAPI: {
-        closeApp: ()=> void;
-      }
-  }
-}
-
-
-
 function App() {
   const [time, setTime] = useState(new Date().toLocaleTimeString([], {
     hour: "2-digit",
@@ -42,10 +32,7 @@ function App() {
 
   const weekday = new Date().toLocaleDateString("en-US", { weekday: "long" });
 
-  const handleClick = async ()=>{
-    window.electronAPI.closeApp()
-    console.log("Hello above is the error")
-  }
+  
 
   return (
     <div className="bg-container h-screen flex items-center flex-col">
@@ -70,11 +57,16 @@ function App() {
         </div>      
       </div>     
       <div className='w-full h-10 flex justify-start px-5 hover:cursor-pointer'>
-        <BsThreeDots onClick={handleClick} className='text-4xl'/>
-        <Dialog handleClose={handleClick}/>
+        <BsThreeDots className='text-4xl'/>
+        <Dialog handleClose={handleCloseClick}/>
       </div>     
     </div>
   )
 }
 
 export default App
+
+export const handleCloseClick = async ()=>{
+  window.electronAPI.closeApp()
+  console.log("Hello above is the error")
+}

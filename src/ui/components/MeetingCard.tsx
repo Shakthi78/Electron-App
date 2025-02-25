@@ -2,7 +2,7 @@ import Button from "./Button"
 
 import { Meeting } from "./Meetings"
 
-const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer}) => {
+const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, meetingLink}) => {
   function separate(time: string){
     let result;
     let a = time.split(" ")
@@ -10,9 +10,13 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer}) 
     return result;
   }
 
-
   let start = separate(startTime)
   let end = separate(endTime)
+
+  const handleClick = () => {
+    window.electronAPI.startMeeting(meetingLink);
+    console.log("Meeting has started")
+  }
   
   return (
     <div className="w-full h-40 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl" >
@@ -23,7 +27,7 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer}) 
         </div>
         <div className="flex flex-col text-center gap-4 mt-4">
           <h1>Icon</h1>
-          <Button text="Start" size="md"/>
+          <Button text="Start" size="md" onClick={handleClick}/>
         </div>
     </div>
   )
