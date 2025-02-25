@@ -48,14 +48,13 @@ const createMeetingWindow = (display, url) => {
         kiosk: false,
         webPreferences: {
             nodeIntegration: false,
-            contextIsolation: true, 
-            devTools: true,
+            contextIsolation: false, 
         },
     });
 
     win.loadURL(url) 
     win.maximize()
-
+    
     return win;
 }
 

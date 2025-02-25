@@ -147,7 +147,7 @@ const injectMeetingControls = (webContents) => {
                         clearInterval(interval);
                         if (callback) callback();
                     }
-                }, 500); // Poll every 500ms
+                }, 5000); // Poll every 500ms
             };
 
             // Google Meet

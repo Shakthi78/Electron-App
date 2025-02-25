@@ -50,7 +50,7 @@ function App() {
           </div> 
 
           <div className='flex gap-2 mt-28'>
-            <Button text="Video Call" size='lg'/>
+            <Button text="New Meeting" size='lg'/>
             <Button text="Video Call" size='lg'/>
             <Button text="Video Call" size='lg'/>
           </div>  
