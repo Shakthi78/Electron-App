@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, ipcMain  } = require('electron') 
+const { app, BrowserWindow, screen, ipcMain, Menu, session  } = require('electron') 
 const path = require('node:path');
 const injectMeetingControls = require('./meeting-preload');
 
@@ -23,6 +23,7 @@ const createWindow = (display, htmlPath) => {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
+            devTools: true,
             preload: path.join(app.getAppPath(), '/src/electron/preload.js')
         },
         
@@ -39,6 +40,23 @@ const createWindow = (display, htmlPath) => {
 const createMeetingWindow = (display, url) => {
     const { x, y, width, height } = display.bounds;
 
+    let normalizedUrl = url;
+    if (url.includes('zoom.us')) {
+        // Extract meeting ID and password (if present) from the original URL
+        const urlObj = new URL(url);
+        const meetingId = urlObj.pathname.split('/j/')[1]?.split('?')[0] || '';
+        const pwd = urlObj.searchParams.get('pwd') || '';
+
+        // Construct the web client URL
+        normalizedUrl = `https://app.zoom.us/wc/${meetingId}/start?fromPWA=1`;
+        if (pwd) {
+            normalizedUrl += `&pwd=${encodeURIComponent(pwd)}`;
+        }
+    } else if (url.includes('teams.microsoft.com') || url.includes('teams.live.com')) {
+        normalizedUrl = url; // Teams doesn’t need normalization
+    }
+
+
     let win = new BrowserWindow({
         x,
         y,
@@ -48,11 +66,43 @@ const createMeetingWindow = (display, url) => {
         kiosk: false,
         webPreferences: {
             nodeIntegration: false,
-            contextIsolation: false, 
+            contextIsolation: true, 
+            devTools: true,
+            sandbox: true,
+            webSecurity: true,
+            partition: 'persist:meetings',
         },
     });
 
-    win.loadURL(url) 
+    const chromeUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+    win.webContents.setUserAgent(chromeUserAgent);
+
+    win.webContents.on('did-finish-load', () => {
+        console.log('Page loaded:', win.webContents.getURL());
+        injectMeetingControls(win.webContents);
+    });
+
+    // Allow navigation within the app
+    win.webContents.on('will-navigate', (event, navigationUrl) => {
+        console.log(`Navigating to: ${navigationUrl}`);
+    });
+
+    // Open external links in default browser
+    win.webContents.on('new-window', (event, newUrl) => {
+        event.preventDefault();
+        require('electron').shell.openExternal(newUrl);
+    });
+
+    // Debug loading issues
+    win.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+        console.error(`Failed to load ${validatedURL}: ${errorCode} - ${errorDescription}`);
+    });
+
+    win.on('closed', () => {
+        win = null;
+    });
+
+    win.loadURL(normalizedUrl) 
     win.maximize()
     
     return win;
@@ -85,14 +135,6 @@ app.whenReady().then(() => {
 ipcMain.on('start-meeting', (event, url)=>{
     if(primaryWindow){
         meetingWindow = createMeetingWindow(primaryDisplay, url)
-
-        meetingWindow.webContents.on('did-finish-load', () => {
-            injectMeetingControls(meetingWindow.webContents);
-        });
-    
-        meetingWindow.on('closed', () => {
-            meetingWindow = null;
-        });
     }
     if(secondaryWindow){
         secondaryWindow.loadFile(path.join(app.getAppPath(), '/dist/secondary.html'))   
@@ -101,10 +143,13 @@ ipcMain.on('start-meeting', (event, url)=>{
 
 ipcMain.on('close-meeting', ()=>{
     if(secondaryWindow){
-        if(meetingWindow) {
-            meetingWindow.close()
-        }
         secondaryWindow.loadFile(path.join(app.getAppPath(), '/dist/index.html'))
+        if(meetingWindow) {
+            console.log("ksndkcnajknasn")
+            meetingWindow.close()
+        }else{
+            console.log("ksndkcnajknasn")
+        }
     }
 })
 
@@ -116,9 +161,9 @@ ipcMain.on('close-windows', () => {
     if (secondaryWindow) {
         secondaryWindow.close();
     }
-    if (meetingWindow) {
-        meetingWindow.close();
-    }
+    // if (meetingWindow) {
+    //     meetingWindow.close();
+    // }
 });
 
 ipcMain.on('meeting-control', (event, action) => {

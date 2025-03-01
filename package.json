@@ -6,7 +6,7 @@
   "scripts": {
     "dev:react": "vite",
     "dev:electron": "electron .",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && electron-builder",
     "lint": "eslint .",
     "preview": "vite preview",
     "package": "electron-builder --win"
@@ -40,7 +40,7 @@
   },
   "build": {
     "appId": "com.example.electroncourse",
-    "productName": "ElectronCourseApp",
+    "productName": "OneRoom",
     "asar": true,
     "compression": "maximum",
     "files": [
@@ -57,7 +57,12 @@
         "portable",
         "nsis"
       ],
-      "icon": "public/icon.ico"
+      "icon": "public/icon.ico",
+      "certificateFile": "C:\\Users\\Admin\\Downloads\\OneRoom.pfx",
+      "certificatePassword": "123",
+      "signingHashAlgorithms": ["sha256"],
+      "rfc3161TimeStampServer": "http://timestamp.digicert.com",
+      "requestedExecutionLevel": "requireAdministrator"
     },
     "nsis": {
       "oneClick": false,
