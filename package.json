@@ -40,7 +40,7 @@
   },
   "build": {
     "appId": "com.example.electroncourse",
-    "productName": "OneRoom",
+    "productName": "ElectronCourseApp",
     "asar": true,
     "compression": "maximum",
     "files": [
@@ -57,12 +57,7 @@
         "portable",
         "nsis"
       ],
-      "icon": "public/icon.ico",
-      "certificateFile": "C:\\Users\\Admin\\Downloads\\OneRoom.pfx",
-      "certificatePassword": "123",
-      "signingHashAlgorithms": ["sha256"],
-      "rfc3161TimeStampServer": "http://timestamp.digicert.com",
-      "requestedExecutionLevel": "requireAdministrator"
+      "icon": "public/icon.ico"
     },
     "nsis": {
       "oneClick": false,
