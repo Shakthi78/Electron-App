@@ -1,6 +1,8 @@
 const { app, BrowserWindow, screen, ipcMain, Menu, session  } = require('electron') 
 const path = require('node:path');
 const injectMeetingControls = require('./meeting-preload');
+const getNetworkInfo = require('./network');
+
 
 let primaryWindow;
 let secondaryWindow;
@@ -68,8 +70,6 @@ const createMeetingWindow = (display, url) => {
             nodeIntegration: false,
             contextIsolation: true, 
             devTools: true,
-            sandbox: true,
-            webSecurity: true,
             partition: 'persist:meetings',
         },
     });
@@ -108,6 +108,13 @@ const createMeetingWindow = (display, url) => {
     return win;
 }
 
+const loadRouteInWindow = (window, route) => {
+    if (window) {
+        const filePath = path.join(app.getAppPath(), '/dist/index.html');
+        window.loadFile(filePath, { hash: route });
+    }
+};
+
 app.whenReady().then(() => {
     // Menu.setApplicationMenu(null);
 
@@ -126,8 +133,44 @@ app.whenReady().then(() => {
     } else {
         console.log("No secondary display detected.");
     }
+
+    session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+        console.log(`Permission requested: ${permission}`);
+        if (permission === 'media' || permission === 'camera' || permission === 'microphone') {
+            console.log('Granting media/camera/microphone access');
+            callback(true);
+        } else {
+            console.log(`Denying permission: ${permission}`);
+            callback(false);
+        }
+    });
 })
 
+
+// Handle request from React to get network info
+ipcMain.handle('get-network-info', async () => {
+    return await getNetworkInfo()
+  });
+
+//Listen for save and close
+ipcMain.on("save-and-close", (event, route)=>{
+    if(secondaryWindow && route === route){
+        loadRouteInWindow(secondaryWindow, route)
+    }
+    else if(primaryWindow){
+        loadRouteInWindow(primaryWindow, route)
+    }
+})
+
+//Listen for navigation
+ipcMain.on('navigate-to', (event, route)=>{
+    if(route === "settings" && secondaryWindow){
+        loadRouteInWindow(secondaryWindow, route);
+    }else if(primaryWindow){
+        console.log("anksnklncask")
+        loadRouteInWindow(primaryWindow, route)
+    }
+})
 
 
 //Listen for start-meeting events from frontend

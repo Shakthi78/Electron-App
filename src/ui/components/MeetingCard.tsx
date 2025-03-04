@@ -38,18 +38,16 @@ export default MeetingCard
 
 async function requestMediaAccess() {
   try {
-    console.log("Requesting media access..."); // Debugging line
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: true,
-    });
-    console.log('Media access granted:', stream);
+      console.log("Requesting media devices in renderer...");
+      const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: true,
+      });
+      console.log('Media access granted:', stream);
+      return stream;
   } catch (error: any) {
-    console.error('Media access denied:', error);
-    if (error.name === 'NotAllowedError') {
-      alert('Camera and microphone access denied. Please enable them in Windows Settings > Privacy > Camera/Microphone, then refresh the page.');
-    } else {
-      alert(`Failed to access media devices: ${error.message}`);
-    }
+      console.error('Media access denied:', error.name, error.message);
+      alert(`Failed to access media devices: ${error.name} - ${error.message}`);
+      throw error;
   }
 }

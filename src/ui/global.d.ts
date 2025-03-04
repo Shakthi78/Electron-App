@@ -6,6 +6,9 @@
         startMeeting: (url: string) => void;
         controlMeeting: (action: string) => void;
         closeMeeting: () => void;  // Ensure this is here
+        navigateTo: (route) => void;
+        getNetworkInfo: () => Promise<{ type: string; name: string }>;
+        saveClose: (route) => void
       };
     }
   }

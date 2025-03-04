@@ -3,7 +3,7 @@ import './App.css'
 // import MeetingCard from './components/MeetingCard'
 import { BsThreeDots } from "react-icons/bs";
 import Dialog from './components/Dialog';
-import { handleCloseClick } from './App';
+import { handleCloseClick } from './pages/Home';
 
 function SecondaryApp() {
   const handleControl = (action: string) => {
