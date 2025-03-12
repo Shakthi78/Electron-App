@@ -15,7 +15,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.0.6",
     "@types/axios": "^0.9.36",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "framer-motion": "^12.4.7",
     "network": "^0.7.0",
     "os": "^0.1.2",
@@ -30,7 +30,7 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
-    "electron": "^34.2.0",
+    "electron": "^34.3.0",
     "electron-builder": "^25.1.8",
     "eslint": "^9.19.0",
     "eslint-plugin-react-hooks": "^5.0.0",

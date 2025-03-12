@@ -3,9 +3,10 @@ interface ButtonProps {
     size: "sm" | "md" | "lg";
     reference?: React.Ref<HTMLButtonElement>;
     onClick?: () => void;
-    color?: "red" | "black";
+    color?: "red" | "black" | 'blue';
+    type? : "submit"
 }
-const Button = ({text, size, reference, onClick, color}: ButtonProps) => {
+const Button = ({text, size, reference, onClick, color, type}: ButtonProps) => {
 
     const sizeValues = {
         "sm": `px-4 py-2 rounded border-2 border-black-500`,
@@ -15,11 +16,12 @@ const Button = ({text, size, reference, onClick, color}: ButtonProps) => {
 
     const colorValues = {
       "red": "bg-red-500",
+      "blue": "bg-blue-500",
       "black": "bg-none"
     }
 
   return (
-    <button ref={reference} onClick={onClick} className={`${sizeValues[size]} hover:cursor-pointer ${colorValues[color ?? "black"]}`}>{text}</button>
+    <button ref={reference} type={type} onClick={onClick} className={`${sizeValues[size]} hover:cursor-pointer ${colorValues[color ?? "black"]}`}>{text}</button>
   )
 }
 

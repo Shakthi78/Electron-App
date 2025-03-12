@@ -13,7 +13,8 @@ const Sidebar = () => {
     }
 
     const handleNavigate = ()=>{
-        window.electronAPI.navigateTo("settings")
+      window.electronAPI.navigateTo("settings")
+      close()
     }    
 
     useEffect(() => {

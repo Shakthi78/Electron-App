@@ -35,7 +35,7 @@ const Meetings = () => {
         const response = await axios.get(`https://exceleed.in/api/v1/meetings/${roomname}`)
         setMeetings(response.data as Meeting[])
     
-        console.log(response.data)
+        console.log("Meetings", response.data)
     }
 
     useEffect(() => {

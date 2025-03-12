@@ -34,7 +34,7 @@ const Home = () => {
         <h2>Customizable logo</h2>
         <h2>Company Logo</h2>
       </div>     
-      <div className='w-full h-full p-5 flex justify-center items-center gap-4'>
+      <div className='w-full h-full p-5 flex justify-center items-center gap-24'>
         <Meetings/>
         <div className='w-1/3 h-96 mt-5 flex flex-col items-center'>
           <div className='text-7xl text-center mt-10 '>
@@ -42,7 +42,7 @@ const Home = () => {
             <h1 className='text-3xl'>{weekday}</h1>
           </div> 
 
-          <div className='flex gap-2 mt-28'>
+          <div className='flex gap-2 mt-20'>
             <Button text="New Meeting" size='lg'/>
             <Button text="Video Call" size='lg'/>
             <Button text="Video Call" size='lg'/>

@@ -7,5 +7,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeMeeting: () => ipcRenderer.send('close-meeting'),
   navigateTo: (route) => ipcRenderer.send("navigate-to", route),
   getNetworkInfo: () => ipcRenderer.invoke("get-network-info"),
-  saveClose: (route) => ipcRenderer.send("save-and-close", route)
+  authGoogle: (url) => ipcRenderer.send("authenticate-google", url),
+
+  onUserEmail: (callback) => {
+    console.log("👀 Registered user-email listener in preload.js");
+    ipcRenderer.on('user-email', (event, userData) => {
+      console.log("📩 Received user email in preload.js:", userData);
+      callback(userData);
+    });
+  },
 })

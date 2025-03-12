@@ -1,8 +1,7 @@
-const { app, BrowserWindow, screen, ipcMain, Menu, session  } = require('electron') 
+const { app, BrowserWindow, screen, ipcMain, session, ipcRenderer } = require('electron') 
 const path = require('node:path');
 const injectMeetingControls = require('./meeting-preload');
 const getNetworkInfo = require('./network');
-
 
 let primaryWindow;
 let secondaryWindow;
@@ -10,6 +9,7 @@ let meetingWindow;
 
 let primaryDisplay;
 let secondaryDisplay;
+let authWindow;
 
 const createWindow = (display, htmlPath) => {
     const { x, y, width, height } = display.bounds;
@@ -50,14 +50,13 @@ const createMeetingWindow = (display, url) => {
         const pwd = urlObj.searchParams.get('pwd') || '';
 
         // Construct the web client URL
-        normalizedUrl = `https://app.zoom.us/wc/${meetingId}/start?fromPWA=1`;
+        normalizedUrl = `https://app.zoom.us/wc/${meetingId}/join`;
         if (pwd) {
-            normalizedUrl += `&pwd=${encodeURIComponent(pwd)}`;
+            normalizedUrl += `?pwd=${encodeURIComponent(pwd)}`;
         }
     } else if (url.includes('teams.microsoft.com') || url.includes('teams.live.com')) {
         normalizedUrl = url; // Teams doesn’t need normalization
     }
-
 
     let win = new BrowserWindow({
         x,
@@ -74,12 +73,23 @@ const createMeetingWindow = (display, url) => {
         },
     });
 
-    const chromeUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+    win.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+        console.log(`Permission requested: ${permission}`);
+        if (permission === "display-capture" || permission === 'media' || permission === 'camera' || permission === 'microphone' || permission === 'display-media') {
+            console.log(`Granting permission: ${permission}`);
+            callback(true);
+        } else {
+            console.log(`Denying permission: ${permission}`);
+            callback(false);
+        }
+    });
+
+    const chromeUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36';
     win.webContents.setUserAgent(chromeUserAgent);
 
     win.webContents.on('did-finish-load', () => {
         console.log('Page loaded:', win.webContents.getURL());
-        injectMeetingControls(win.webContents);
+        injectMeetingControls(win.webContents);    
     });
 
     // Allow navigation within the app
@@ -108,6 +118,95 @@ const createMeetingWindow = (display, url) => {
     return win;
 }
 
+const createAuthWindow = (display, url)=>{
+    const { x, y, width, height } = display.bounds;
+
+    let win = new BrowserWindow({
+        x,
+        y,
+        width,
+        height,
+        frame: true,
+        kiosk: false,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true, 
+            devTools: true,
+            preload: path.join(app.getAppPath(), '/src/electron/preload.js')
+        },
+    })
+
+    const chromeUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36';
+    win.webContents.setUserAgent(chromeUserAgent);
+
+    win.webContents.on('did-finish-load', async () => {
+        const currentUrl = win.webContents.getURL();
+        console.log('Page loaded:', currentUrl);
+
+        if (currentUrl.startsWith('https://exceleed.in/api/v1/auth/redirect')) {
+            try {
+              // Execute JavaScript in the window to get the page content
+              const content = await win.webContents.executeJavaScript('document.body.innerText');
+              console.log('Raw content:', content);
+
+                let data;
+                try {
+                data = JSON.parse(content);
+                console.log('Parsed JSON:', data);
+                } catch (parseError) {
+                console.error('Failed to parse JSON:', parseError.message);
+                return;
+                }
+      
+              // Check if the response contains user data
+                if (data.success && data.user) {
+                    console.log("Sending email:", data.user);
+                    if (secondaryWindow) {
+                        console.log("🚀 Sending user email to secondary window:", data.user);
+                        secondaryWindow.webContents.send('user-email', data.user);
+                    } else {
+                        console.log("🚀 Sending user email to primary window:", data.user);
+                        primaryWindow.webContents.send('user-email', data.user);
+                    }
+                    win.close();
+                } else {
+                    console.error('Auth failed:', data.error, 'Details:', data.details);
+                }
+            } catch (error) {
+              console.error('Error extracting content:', error.message);
+            }
+        }
+    });
+
+    // Allow navigation within the app
+    win.webContents.on('will-navigate', (event, navigationUrl) => {
+        console.log(`Navigating to: ${navigationUrl}`);
+        // if(navigationUrl.includes("redirect")){
+        //     win.close()
+        // }
+    });
+
+    // Open external links in default browser
+    win.webContents.on('new-window', (event, newUrl) => {
+        event.preventDefault();
+        require('electron').shell.openExternal(newUrl);
+    });
+
+    // Debug loading issues
+    win.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+        console.error(`Failed to load ${validatedURL}: ${errorCode} - ${errorDescription}`);
+    });
+
+    win.on('closed', () => {
+        win = null;
+    });
+
+    win.loadURL(url) 
+    win.maximize()
+    
+    return win;
+}
+
 const loadRouteInWindow = (window, route) => {
     if (window) {
         const filePath = path.join(app.getAppPath(), '/dist/index.html');
@@ -115,7 +214,7 @@ const loadRouteInWindow = (window, route) => {
     }
 };
 
-app.whenReady().then(() => {
+app.whenReady().then(async() => {
     // Menu.setApplicationMenu(null);
 
     const displays = screen.getAllDisplays()
@@ -133,38 +232,36 @@ app.whenReady().then(() => {
     } else {
         console.log("No secondary display detected.");
     }
-
-    session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
-        console.log(`Permission requested: ${permission}`);
-        if (permission === 'media' || permission === 'camera' || permission === 'microphone') {
-            console.log('Granting media/camera/microphone access');
-            callback(true);
-        } else {
-            console.log(`Denying permission: ${permission}`);
-            callback(false);
-        }
-    });
 })
 
+// Handle auth success
+// ipcMain.on('auth-success', (event, data) => {
+//     console.log("data", data)
+//     userEmail = data.email;
+//     console.log("UserEmail", userEmail)
+//     if (mainWindow) {
+//         mainWindow.webContents.send('user-email', userEmail);
+//     }
+// });
+
+//Handle request for Googlr calendar authentication
+ipcMain.on("authenticate-google", (event, url)=>{
+    if(secondaryWindow){
+       authWindow = createAuthWindow(secondaryDisplay, url)
+    }
+    else{
+        authWindow = createAuthWindow(primaryDisplay, url)
+    }
+})
 
 // Handle request from React to get network info
 ipcMain.handle('get-network-info', async () => {
     return await getNetworkInfo()
   });
 
-//Listen for save and close
-ipcMain.on("save-and-close", (event, route)=>{
-    if(secondaryWindow && route === route){
-        loadRouteInWindow(secondaryWindow, route)
-    }
-    else if(primaryWindow){
-        loadRouteInWindow(primaryWindow, route)
-    }
-})
-
 //Listen for navigation
 ipcMain.on('navigate-to', (event, route)=>{
-    if(route === "settings" && secondaryWindow){
+    if(route === route && secondaryWindow){
         loadRouteInWindow(secondaryWindow, route);
     }else if(primaryWindow){
         console.log("anksnklncask")

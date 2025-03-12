@@ -58,7 +58,7 @@ const injectMeetingControls = (webContents) => {
                 }
             } 
             // Microsoft Teams Controls
-            else if (url.includes('teams.microsoft.com')) {
+            else if (url.includes('teams.microsoft.com') || url.includes('teams')) {
                 switch (action) {
                     case 'mute':
                         const muteBtn = document.querySelector('[aria-label="Mute mic"]') ||
@@ -94,7 +94,7 @@ const injectMeetingControls = (webContents) => {
                 }
             } 
             // Zoom Controls
-            else if (url.includes('zoom.us')) {
+            else if (url.includes('app.zoom.us')) {
                 switch (action) {
                     case 'mute':
                         const muteBtn = document.querySelector('[aria-label="mute my microphone"]') || 
@@ -124,8 +124,12 @@ const injectMeetingControls = (webContents) => {
                         if (handBtn) handBtn.click();
                         break;
                     case 'leave':
-                        const leaveBtn = document.querySelector('[aria-label="Leave Meeting"]');
+                        const leaveBtn = document.querySelector('[aria-label="Leave"]') || document.querySelector('[aria-label="End"]');
                         if (leaveBtn) leaveBtn.click();
+                        setInterval(()=>{
+                            const leaveBtn1 = document.querySelector('.leave-meeting-options__btn--danger')
+                            if(leaveBtn1) leaveBtn1.click()
+                        }, 2000)
                         break;
                 }
             }
@@ -160,12 +164,18 @@ const injectMeetingControls = (webContents) => {
             // Microsoft Teams
             else if (url.includes('teams.live.com') || url.includes('teams')) {
                 console.log("Detected Microsoft Teams");
+                pollForButton('[aria-label="Join meeting from this browser"], button[data-tid*="joinOnWeb"]', 'continue', () => {
+                    console.log("Successfully joined Teams");
+                });
                 pollForButton('[aria-label="Join now"], button[data-tid*="join"]', 'join', () => {
                     console.log("Successfully joined Teams");
                 });
             }
-            else {
-                console.log("No supported meeting platform detected");
+            else if(url.includes('zoom.us')){
+                console.log("Detected Zoom");
+                pollForButton('.preview-join-button, button[data-tid*="join"]', 'join', () => {
+                        console.log("Successfully joined Zoom");
+                    });
             }
         }
 

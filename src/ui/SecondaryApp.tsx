@@ -12,12 +12,16 @@ function SecondaryApp() {
   };
 
   const handleCloseApp = () => {
-    window.electronAPI.closeApp();
+    
+      window.electronAPI.closeApp();
+    
   };
 
   const handleCloseMeeting = () => {
     handleControl('leave')
-    window.electronAPI.closeMeeting()
+    setTimeout(() => {
+      window.electronAPI.closeMeeting()
+    }, 5000);
   }
 
   return (
