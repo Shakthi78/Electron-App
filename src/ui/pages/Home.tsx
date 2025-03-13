@@ -3,6 +3,7 @@ import Meetings from "../components/Meetings"
 import Button from "../components/Button"
 import Dialog from "../components/Dialog"
 import Sidebar from "../components/Sidebar"
+import MeetingDialog from "../components/MeetingDialog"
 
 const Home = () => {
     const [time, setTime] = useState(new Date().toLocaleTimeString([], {
@@ -43,7 +44,7 @@ const Home = () => {
           </div> 
 
           <div className='flex gap-2 mt-20'>
-            <Button text="New Meeting" size='lg'/>
+            <MeetingDialog/>
             <Button text="Video Call" size='lg'/>
             <Button text="Video Call" size='lg'/>
           </div>  
