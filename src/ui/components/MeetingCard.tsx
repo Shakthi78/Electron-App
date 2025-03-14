@@ -1,33 +1,51 @@
+import { useEffect, useState } from "react";
 import Button from "./Button"
-
+import Zoom from '../assets/Zoom.png'
+import Teams from '../assets/Team.png'
+import Google from '../assets/Google.png'
 import { Meeting } from "./Meetings"
 
 const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, meetingLink}) => {
-  function separate(time: string){
-    let result;
-    let a = time.split(" ")
-    result = a[1]+ " " +a[2]
-    return result;
-  }
-
-  let start = separate(startTime)
-  let end = separate(endTime)
+  const [logo, setLogo] = useState<string>("")
 
   const handleClick = async() => {
     await requestMediaAccess()
     window.electronAPI.startMeeting(meetingLink);
     console.log("Meeting has started")
   }
+
+  useEffect(() => {
+    if(meetingLink.includes('zoom')){
+      setLogo("zoom")
+    }
+    else if(meetingLink.includes('teams')){
+      setLogo("teams")
+    }
+    else if(meetingLink.includes('google')){
+      setLogo("google")
+    }
+  }, [])
+  
   
   return (
     <div className="w-full h-40 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl" >
-        <div className="flex flex-col text-medium">
+        <div className="flex flex-col text-medium gap-5">
           <h1 className="text-xl font-semibold mt-2">{title}</h1>
-          <h1 className="text-sm font-light">{start} {end}</h1>
-          <h1 className="text-medium font-light">{organizer}</h1>
+          <div>
+            <div className="flex gap-3">
+              <h1 className="text-sm font-light">{startTime}</h1>
+              <h1 className="text-sm font-light">{endTime}</h1>
+            </div>
+            <h1 className="text-medium font-light">{organizer}</h1>
+          </div>
+          
         </div>
-        <div className="flex flex-col text-center gap-4 mt-4">
-          <h1>Icon</h1>
+        <div className="flex flex-col items-center text-center gap-7 mt-4">
+          <div className="w-10 h-3 flex justify-center items-center">
+            {logo === 'zoom' && <img src={Zoom} alt="Zoom" /> }
+            {logo === 'teams' && <img src={Teams} alt="Teams" /> }
+            {logo === 'google' && <img src={Google} alt="Google" /> }
+          </div>
           <Button text="Start" size="md" onClick={handleClick}/>
         </div>
     </div>

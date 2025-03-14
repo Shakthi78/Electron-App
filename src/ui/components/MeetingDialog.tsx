@@ -49,8 +49,8 @@ function MeetingDialog() {
 
   if (!isOpen) {
     return (
-      <div className="text-white border-none">
-        <Button text="New Meeting" size="lg" color="black" onClick={openDialog}/>
+      <div className="text-white border-none flex flex-col">
+        <Button icon={true} text="New Call" size="lg" color="black" onClick={openDialog}/>
       </div>
     )
   }
