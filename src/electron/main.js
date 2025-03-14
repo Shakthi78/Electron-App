@@ -43,7 +43,10 @@ const createMeetingWindow = (display, url) => {
     const { x, y, width, height } = display.bounds;
 
     let normalizedUrl = url;
-    if (url.includes('zoom.us')) {
+    if(url.includes('app.zoom.us')){
+        normalizedUrl = url
+    }
+    else if (url.includes('zoom.us')) {
         // Extract meeting ID and password (if present) from the original URL
         const urlObj = new URL(url);
         const meetingId = urlObj.pathname.split('/j/')[1]?.split('?')[0] || '';
@@ -84,6 +87,7 @@ const createMeetingWindow = (display, url) => {
         }
     });
 
+    //This below code helps to prevent the meetings keep on loading.
     const chromeUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36';
     win.webContents.setUserAgent(chromeUserAgent);
 
@@ -181,9 +185,6 @@ const createAuthWindow = (display, url)=>{
     // Allow navigation within the app
     win.webContents.on('will-navigate', (event, navigationUrl) => {
         console.log(`Navigating to: ${navigationUrl}`);
-        // if(navigationUrl.includes("redirect")){
-        //     win.close()
-        // }
     });
 
     // Open external links in default browser
@@ -206,6 +207,7 @@ const createAuthWindow = (display, url)=>{
     
     return win;
 }
+
 
 const loadRouteInWindow = (window, route) => {
     if (window) {
@@ -233,16 +235,6 @@ app.whenReady().then(async() => {
         console.log("No secondary display detected.");
     }
 })
-
-// Handle auth success
-// ipcMain.on('auth-success', (event, data) => {
-//     console.log("data", data)
-//     userEmail = data.email;
-//     console.log("UserEmail", userEmail)
-//     if (mainWindow) {
-//         mainWindow.webContents.send('user-email', userEmail);
-//     }
-// });
 
 //Handle request for Googlr calendar authentication
 ipcMain.on("authenticate-google", (event, url)=>{
@@ -277,13 +269,13 @@ ipcMain.on('start-meeting', (event, url)=>{
         meetingWindow = createMeetingWindow(primaryDisplay, url)
     }
     if(secondaryWindow){
-        secondaryWindow.loadFile(path.join(app.getAppPath(), '/dist/secondary.html'))   
+        loadRouteInWindow(secondaryWindow, 'controls')
     }
 })
 
 ipcMain.on('close-meeting', ()=>{
     if(secondaryWindow){
-        secondaryWindow.loadFile(path.join(app.getAppPath(), '/dist/index.html'))
+        loadRouteInWindow(secondaryWindow, '/')
         if(meetingWindow) {
             console.log("ksndkcnajknasn")
             meetingWindow.close()

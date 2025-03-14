@@ -10,7 +10,6 @@
         getNetworkInfo: () => Promise<{ type: string; name: string }>;
         authGoogle: (url) => void;
         onUserEmail: (callback: (email: string) => void) => void;
-        send: (channel: string, data: any) => void;
       };
     }
   }

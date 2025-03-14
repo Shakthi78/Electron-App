@@ -43,10 +43,11 @@
 
 .dialog-header {
   padding: 16px 20px;
-  border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: black;
+  color: white;
 }
 
 .dialog-header h2 {
@@ -65,6 +66,8 @@
 
 .dialog-body {
   padding: 20px;
+  background-color: black;
+  color: white;
 }
 
 /* Platform options */
@@ -86,7 +89,7 @@
 }
 
 .platform-option:hover {
-  background-color: #f3f4f6;
+  background-color: #353236;
 }
 
 .platform-option.selected {

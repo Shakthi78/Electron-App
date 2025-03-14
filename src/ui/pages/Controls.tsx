@@ -1,20 +1,14 @@
-import './App.css'
+import '../App.css'
 // import Button from './components/Button';
 // import MeetingCard from './components/MeetingCard'
 import { BsThreeDots } from "react-icons/bs";
-import Dialog from './components/Dialog';
-import { handleCloseClick } from './pages/Home';
+import Dialog from '../components/Dialog';
+import { handleCloseClick } from './Home';
 
-function SecondaryApp() {
+function Controls() {
   const handleControl = (action: string) => {
     window.electronAPI.controlMeeting(action);
     console.log(`Control triggered: ${action}`);
-  };
-
-  const handleCloseApp = () => {
-    
-      window.electronAPI.closeApp();
-    
   };
 
   const handleCloseMeeting = () => {
@@ -64,12 +58,6 @@ function SecondaryApp() {
             >
                 Leave
             </button>
-            <button
-                className="px-4 py-2 bg-gray-600 rounded-lg hover:bg-gray-700"
-                onClick={handleCloseApp}
-            >
-                Close App
-            </button>
           </div>
       </div>     
       <div className='w-full h-10 flex justify-end px-5 hover:cursor-pointer'>
@@ -81,4 +69,4 @@ function SecondaryApp() {
   )
 }
 
-export default SecondaryApp
+export default Controls

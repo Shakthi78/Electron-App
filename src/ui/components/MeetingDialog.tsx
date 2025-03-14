@@ -27,9 +27,21 @@ function MeetingDialog() {
     if (selectedPlatform === "google-meet") {
       // Logic to start instant Google Meet
       console.log("Starting instant Google Meet")
+      window.electronAPI.startMeeting("https://meet.google.com/new")
       closeDialog()
     } else if (selectedPlatform && meetingId) {
       // Logic to join Zoom or Teams meeting
+      if(selectedPlatform === "teams"){
+        window.electronAPI.startMeeting(`https://teams.live.com/meet/${meetingId.replace(/\s/g, '')}?p=${password}`)
+      }
+      else if(selectedPlatform === "zoom"){
+       let normalizedUrl = `https://app.zoom.us/wc/${meetingId.replace(/\s/g, '')}/join`;
+        if (password) {
+          const encodedPassword = encodeURIComponent(password);
+          normalizedUrl += `?pwd=${encodedPassword}`;
+        }
+        window.electronAPI.startMeeting(normalizedUrl)
+      }
       console.log(`Joining ${selectedPlatform} meeting with ID: ${meetingId} and password: ${password}`)
       closeDialog()
     }
@@ -37,7 +49,9 @@ function MeetingDialog() {
 
   if (!isOpen) {
     return (
-      <Button text="New Meeting" size="lg" onClick={openDialog}/>
+      <div className="text-white border-none">
+        <Button text="New Meeting" size="lg" color="black" onClick={openDialog}/>
+      </div>
     )
   }
 
@@ -98,7 +112,7 @@ function MeetingDialog() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="password">Password (optional)</label>
+                <label htmlFor="password">Password</label>
                 <input
                   id="password"
                   type="password"

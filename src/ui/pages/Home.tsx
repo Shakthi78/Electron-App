@@ -43,10 +43,10 @@ const Home = () => {
             <h1 className='text-3xl'>{weekday}</h1>
           </div> 
 
-          <div className='flex gap-2 mt-20'>
+          <div className='flex gap-2 mt-20 text-white'>
             <MeetingDialog/>
-            <Button text="Video Call" size='lg'/>
-            <Button text="Video Call" size='lg'/>
+            <Button color="black" text="Video Call" size='lg'/>
+            <Button color="black" text="Video Call" size='lg'/>
           </div>  
         </div>      
       </div>     
