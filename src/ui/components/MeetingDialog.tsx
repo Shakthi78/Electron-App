@@ -8,8 +8,8 @@ import Google from "../assets/Google.png";
 function MeetingDialog() {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>("")
-  const [meetingId, setMeetingId] = useState("")
-  const [password, setPassword] = useState("")
+  const [meetingId, setMeetingId] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
 
   const openDialog = () => setIsOpen(true)
   const closeDialog = () => {
@@ -24,14 +24,18 @@ function MeetingDialog() {
   }
 
   const handleJoinMeeting = () => {
-    if (selectedPlatform === "google-meet") {
+    if (selectedPlatform === "google-meet-start") {
       // Logic to start instant Google Meet
       console.log("Starting instant Google Meet")
       window.electronAPI.startMeeting("https://meet.google.com/new")
       closeDialog()
-    } else if (selectedPlatform && meetingId) {
+    } 
+    else if (selectedPlatform && meetingId) {
       // Logic to join Zoom or Teams meeting
-      if(selectedPlatform === "teams"){
+      if(selectedPlatform === "google-meet-join"){
+        window.electronAPI.startMeeting(`https://meet.google.com/${meetingId}`)
+      }
+      else if(selectedPlatform === "teams"){
         window.electronAPI.startMeeting(`https://teams.live.com/meet/${meetingId.replace(/\s/g, '')}?p=${password}`)
       }
       else if(selectedPlatform === "zoom"){
@@ -47,6 +51,7 @@ function MeetingDialog() {
     }
   }
 
+  console.log(selectedPlatform)
   if (!isOpen) {
     return (
       <div className="text-white border-none flex flex-col">
@@ -88,7 +93,7 @@ function MeetingDialog() {
             </div>
 
             <div
-              className={`platform-option ${selectedPlatform === "google-meet" ? "selected" : ""} text-center`}
+              className={`platform-option ${selectedPlatform === "google-meet" || selectedPlatform === "google-meet-join" || selectedPlatform === "google-meet-start" ? "selected" : ""} text-center`}
               onClick={() => setSelectedPlatform("google-meet")}
             >
               <div className="platform-icon">
@@ -98,7 +103,14 @@ function MeetingDialog() {
             </div>
           </div>
 
-          {(selectedPlatform === "zoom" || selectedPlatform === "teams") && (
+          {selectedPlatform === "google-meet" && (
+            <div className="flex justify-center gap-4 m-5">
+              <Button text="Join" size="md" onClick={()=> setSelectedPlatform("google-meet-join")} />
+              <Button text="Start" size="md" onClick={()=> setSelectedPlatform("google-meet-start")} />
+            </div>
+          )}
+
+          {(selectedPlatform === "zoom" || selectedPlatform === "teams" || selectedPlatform === "google-meet-join" ) && (
             <div className="meeting-details">
               <div className="form-group">
                 <label htmlFor="meeting-id">Meeting ID</label>
@@ -107,11 +119,12 @@ function MeetingDialog() {
                   type="text"
                   value={meetingId}
                   onChange={(e) => setMeetingId(e.target.value)}
-                  placeholder={selectedPlatform === "zoom" ? "123 456 7890" : "example@teams.com"}
+                  placeholder="Meeting Id"
                 />
               </div>
 
-              <div className="form-group">
+              {selectedPlatform !== "google-meet-join" && (
+                <div className="form-group">
                 <label htmlFor="password">Password</label>
                 <input
                   id="password"
@@ -121,6 +134,8 @@ function MeetingDialog() {
                   placeholder="Enter meeting password"
                 />
               </div>
+              )}
+
             </div>
           )}
 
@@ -128,10 +143,10 @@ function MeetingDialog() {
             className="join-button"
             onClick={handleJoinMeeting}
             disabled={
-              selectedPlatform === null || ((selectedPlatform === "zoom" || selectedPlatform === "teams") && !meetingId)
+              selectedPlatform === null || ((selectedPlatform === "zoom" || selectedPlatform === "teams" || selectedPlatform === "google-meet" || selectedPlatform === "google-meet-join") && !meetingId)
             }
           >
-            {selectedPlatform === "google-meet"
+            {selectedPlatform === "google-meet-start"
               ? "Start Instant Meeting"
               : selectedPlatform
                 ? "Join Meeting"

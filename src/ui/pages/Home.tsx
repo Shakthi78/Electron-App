@@ -6,27 +6,27 @@ import Sidebar from "../components/Sidebar"
 import MeetingDialog from "../components/MeetingDialog"
 
 const Home = () => {
-    const [time, setTime] = useState(new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
+  const [time, setTime] = useState(new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }))
+  
+  useEffect(() => {
+  const interval = setInterval(()=>{
+      setTime(new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
       }))
-    
-    useEffect(() => {
-    const interval = setInterval(()=>{
-        setTime(new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-        }))
-    }, 60 * 1000)
-        
-    return () => {
-        clearInterval (interval)
-    }
-    }, [])
+  }, 60 * 1000)
       
-    const weekday = new Date().toLocaleDateString("en-US", { weekday: "long" });
+  return () => {
+      clearInterval (interval)
+  }
+  }, [])
+    
+  const weekday = new Date().toLocaleDateString("en-US", { weekday: "long" });
 
   return (
     <div className="bg-container h-screen flex items-center flex-col">
@@ -53,6 +53,7 @@ const Home = () => {
       <div className='w-full h-10 flex justify-start px-5 hover:cursor-pointer'>
         <Sidebar/>
         <Dialog handleClose={handleCloseClick}/>
+        {/* <Button text="Keyboard" size="md" onClick={()=> window.electronAPI.openKeyboard()} /> */}
       </div>     
     </div>
   )

@@ -15,20 +15,20 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
   }
 
   useEffect(() => {
-    if(meetingLink.includes('zoom')){
+    if(meetingLink?.includes('zoom')){
       setLogo("zoom")
     }
-    else if(meetingLink.includes('teams')){
+    else if(meetingLink?.includes('teams')){
       setLogo("teams")
     }
-    else if(meetingLink.includes('google')){
+    else if(meetingLink?.includes('google')){
       setLogo("google")
     }
   }, [])
   
   
   return (
-    <div className="w-full h-40 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl" >
+    <div className="w-full h-40 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl mt-2" >
         <div className="flex flex-col text-medium gap-5">
           <h1 className="text-xl font-semibold mt-2">{title}</h1>
           <div>

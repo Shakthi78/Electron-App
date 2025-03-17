@@ -2,6 +2,7 @@ const { app, BrowserWindow, screen, ipcMain, session, ipcRenderer } = require('e
 const path = require('node:path');
 const injectMeetingControls = require('./meeting-preload');
 const getNetworkInfo = require('./network');
+const { exec } = require("child_process");
 
 let primaryWindow;
 let secondaryWindow;
@@ -10,6 +11,15 @@ let meetingWindow;
 let primaryDisplay;
 let secondaryDisplay;
 let authWindow;
+
+function openOnScreenKeyboard() {
+    // exec("osk", (error) => {
+    //     if (error) console.error("Failed to open keyboard:", error);
+    // });
+    exec('start "" "C:\\Program Files\\Common Files\\microsoft shared\\ink\\TabTip.exe"', (error) => {
+        if (error) console.error("Failed to open Touch Keyboard:", error);
+    });
+}
 
 const createWindow = (display, htmlPath) => {
     const { x, y, width, height } = display.bounds;
@@ -234,6 +244,11 @@ app.whenReady().then(async() => {
     } else {
         console.log("No secondary display detected.");
     }
+})
+
+//Open onScreen Keyboard
+ipcMain.on("open-keyboard", ()=>{
+    openOnScreenKeyboard()
 })
 
 //Handle request for Googlr calendar authentication

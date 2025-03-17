@@ -4,6 +4,10 @@ import '../App.css'
 import { BsThreeDots } from "react-icons/bs";
 import Dialog from '../components/Dialog';
 import { handleCloseClick } from './Home';
+import { VscMic } from "react-icons/vsc";
+import Button from '../components/Button';
+import { IoVideocamOutline } from 'react-icons/io5';
+import { LiaHandPaper } from "react-icons/lia";
 
 function Controls() {
   const handleControl = (action: string) => {
@@ -25,46 +29,38 @@ function Controls() {
         <h2>Customizable logo</h2>
         <h2>Company Logo</h2>
       </div>     
-       <div className='w-full h-full p-5 flex justify-center items-center gap-2'>
-          <h2 className="text-2xl">Meeting Controls</h2>
-          <div className="flex flex-wrap gap-4">
-            <button
-                className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
-                onClick={() => handleControl('mute')}
-            >
-                Mute/Unmute
-            </button>
-            <button
-                className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
-                onClick={() => handleControl('video')}
-            >
-                Video On/Off
-            </button>
-            <button
-                className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
-                onClick={() => handleControl('share')}
-            >
-                Share Screen
-            </button>
-            <button
-                className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
-                onClick={() => handleControl('hand')}
-            >
-                Raise Hand
-            </button>
-            <button
-                className="px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700"
-                onClick={handleCloseMeeting}
-            >
-                Leave
-            </button>
+       <div className='w-full h-full flex flex-col justify-center items-center gap-4'>
+        <div className="w-1/3 h-36 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl" >
+          <div className="flex flex-col text-medium gap-5">
+            <h1 className="text-xl font-semibold mt-2">Meeting</h1>
+            <div>
+              <h1 className="text-medium font-light">Support</h1>
+            </div>
           </div>
+          <div className="flex flex-col items-center text-center gap-7 mt-4">
+            <div className="w-10 h-3 flex justify-center items-center">
+              
+            </div>
+            <Button text="Leave Meeting" size="md" color='red' onClick={handleCloseMeeting}/>
+          </div>
+        </div>
+        <div className='w-1/3 h-20 rounded-xl text-white flex gap-3'>
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => handleControl('mute')}>
+            <VscMic size={'40px'}/>
+          </div>
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => handleControl('video')}>
+            <IoVideocamOutline size={'40px'}/>
+          </div>
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => handleControl('hand')}>
+            <LiaHandPaper size={'40px'}/>
+          </div>
+        </div>
       </div>     
-      <div className='w-full h-10 flex justify-end px-5 hover:cursor-pointer'>
+      <div className='w-full h-10 flex justify-start px-5 hover:cursor-pointer'>
         <BsThreeDots className='text-4xl'/>
         <Dialog handleClose={handleCloseClick}/>
         
-      </div>     
+      </div>      
     </div>
   )
 }

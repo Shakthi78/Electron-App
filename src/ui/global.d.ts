@@ -10,6 +10,7 @@
         getNetworkInfo: () => Promise<{ type: string; name: string }>;
         authGoogle: (url) => void;
         onUserEmail: (callback: (email: string) => void) => void;
+        openKeyboard: () => void;
       };
     }
   }

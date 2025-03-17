@@ -16,4 +16,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
       callback(userData);
     });
   },
+  openKeyboard: () => ipcRenderer.send('open-keyboard')
 })

@@ -24,7 +24,7 @@ const Settings = () => {
   const [selectedTab, setSelectedTab] = useState("network");
   const [networkInfo, setNetworkInfo] = useState({type: "Loading...", name: "Loading..."});
   const [selectedCalendar, setSelectedCalendar] = useState("none")
-  const [selectedRoom, setSelectedRoom] = useState("");
+  const [selectedRoom, setSelectedRoom] = useState("none");
   const [email, setEmail] = useState("")
   const [rooms, setRooms] = useState<RoomType[]>([])
 
@@ -56,10 +56,16 @@ const Settings = () => {
     window.electronAPI.onUserEmail(handleUserEmail);
 
     const storedEmail = localStorage.getItem('userEmail');
+    const storedRoom = localStorage.getItem('room')
+    
     if (storedEmail) {
       fetchRooms(storedEmail);
       setSelectedCalendar("google")
       setEmail(storedEmail)
+    }
+
+    if(storedRoom){
+      setSelectedRoom(storedRoom)
     }
 
     return () => {
@@ -82,6 +88,7 @@ const Settings = () => {
 
   const saveClose = ()=>{
     window.electronAPI.navigateTo("/")
+    localStorage.setItem("room", selectedRoom)
   }
 
   const handleSubmit = (e: any) => {
@@ -112,7 +119,7 @@ const Settings = () => {
         </div>
         
         <div className="w-5/6 h-full text-white">
-          <div className="w-full h-[86%] border-2 border-amber-400 flex justify-center">
+          <div className="w-full h-[86%] flex justify-center">
             {selectedTab === "network" && 
               <div className="px-4 bg-neutral-800 rounded w-64 h-18 mt-10 flex justify-around items-center"> 
                 <FaWifi fontSize={"40px"}/> <p className="text-xl">{networkInfo.name}</p>
@@ -120,7 +127,7 @@ const Settings = () => {
             }
             
             {selectedTab === "license" && 
-              <div className="border-2 border-amber-500 w-2/4 h-[40%] 2xl:h-[25%]  mt-32 flex flex-col gap-4 bg-neutral-600 p-5 pt-8 rounded-2xl">
+              <div className="w-2/4 h-[40%] 2xl:h-[25%]  mt-32 flex flex-col gap-4 bg-neutral-600 p-5 pt-8 rounded-2xl">
                 <h2 className="text-xl">Enter a license key</h2>
                   <input className="border-2 border-white bg-white p-2 rounded-xl text-black outline-none" type="text" />
                   <div className="flex justify-center items-center">
@@ -128,7 +135,7 @@ const Settings = () => {
                   </div>
               </div>
             }
-            {selectedTab === "display" && <div className="border-2 border-amber-500 mt-28 w-1/2 flex gap-4 h-[30%]">
+            {selectedTab === "display" && <div className="mt-28 w-1/2 flex gap-4 h-[30%]">
               
               <div className="w-1/2 flex bg-neutral-600 gap-4 p-4 justify-around items-center rounded-xl">
                 <FaDisplay fontSize={"70px"}/>
@@ -145,8 +152,8 @@ const Settings = () => {
                 </div>
               </div>
             </div> }
-            {selectedTab === "calendar" && <div className="w-[90%] border-2 border-amber-400 mt-12 flex justify-center items-center flex-col">
-              <form onSubmit={handleSubmit} className="w-1/2 h-[40%] 2xl:h-[25%] border-2 border-amber-400">
+            {selectedTab === "calendar" && <div className="w-[90%] mt-12 flex justify-center items-center flex-col">
+              <form onSubmit={handleSubmit} className="w-1/2 h-[40%] 2xl:h-[25%]">
                 <div className="flex justify-center  p-4 flex-col gap-4 bg-neutral-600 rounded-xl mt-4">
                   <label className="font-bold">Choose your calendar provider</label>
                   <select  value={selectedCalendar}
@@ -169,15 +176,14 @@ const Settings = () => {
                     {rooms.map((item)=>(
                       <option value={`${item.generatedResourceName}`}>{item.generatedResourceName}</option>                    
                     ))}
-                    </select>
-                    
+                    </select>                    
                   </div>
                 )}
             </div> }
             {selectedTab === "advance" && <h1>🔒 Advanced Settings</h1>}
           </div>
             
-          <div className="h-[8%] flex justify-end  border-2 border-red-400 px-18">
+          <div className="h-[8%] flex justify-end px-18">
            <div className="flex justify-center items-center">
             <button className="bg-green-600 px-4 py-2 rounded" onClick={saveClose}>Save & Close</button>
            </div>

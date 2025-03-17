@@ -160,6 +160,9 @@ const injectMeetingControls = (webContents) => {
                 pollForButton('div[role="button"], button', 'join now', () => {
                     console.log("Successfully joined Google Meet");
                 });
+                pollForButton('div[role="button"], button', 'ask to join', () => {
+                    console.log("Successfully joined Google Meet");
+                });
             }
             // Microsoft Teams
             else if (url.includes('teams.live.com') || url.includes('teams')) {
