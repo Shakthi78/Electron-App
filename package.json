@@ -13,6 +13,7 @@
     "package": "electron-builder --win"
   },
   "dependencies": {
+    "@excalidraw/excalidraw": "^0.18.0",
     "@tailwindcss/vite": "^4.0.6",
     "@types/axios": "^0.9.36",
     "axios": "^1.8.2",

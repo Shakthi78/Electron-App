@@ -27,6 +27,8 @@ const Settings = () => {
   const [selectedRoom, setSelectedRoom] = useState("none");
   const [email, setEmail] = useState("")
   const [rooms, setRooms] = useState<RoomType[]>([])
+  const [customRoomName, setCustomRoomName] = useState<string>("")
+  const [activate, setActivate] = useState(false)
 
   useEffect(() => {
     const fetchNetworkInfo = async () => {
@@ -180,7 +182,18 @@ const Settings = () => {
                   </div>
                 )}
             </div> }
-            {selectedTab === "advance" && <h1>🔒 Advanced Settings</h1>}
+
+            {selectedTab === "advance" && (
+              <div className="w-full flex justify-center">
+                <div className="bg-neutral-700 rounded-xl w-1/3 p-4 h-40 flex flex-col gap-4 mt-5">
+                  <h1 className="font-bold">Room Name</h1>
+                  <input value={customRoomName} onChange={(e)=> setCustomRoomName(e.target.value)} className={`border-2 border-white p-1 rounded-xl text-black outline-none ${activate === true ? "bg-green-300": "bg-white"}`} type="text" />
+                  <div className="flex justify-center items-center">
+                    <Button text="Enter" size="md" onClick={()=> {localStorage.setItem("customRoomName", customRoomName); setActivate(true)}}/>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
             
           <div className="h-[8%] flex justify-end px-18">

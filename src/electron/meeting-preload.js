@@ -133,6 +133,37 @@ const injectMeetingControls = (webContents) => {
                         break;
                 }
             }
+            // webex Controls
+            else if(url.includes('webex')){
+                switch: (action){
+                    case 'mute': 
+                        const muteBtn = document.querySelector('[aria-label="Microphone is currently unmuted - click to mute"]') || 
+                                        document.querySelector('[aria-label="Microphone is currently muted - click to unmute"]');
+                            if (muteBtn) muteBtn.click();
+                        break;
+                    case 'video':
+                        const videoBtn = document.querySelector('[aria-label="Sending video is currently disabled - click to enable"]') || 
+                                        document.querySelector('[aria-label="Sending video is currently enabled - click to disable"]');
+                        if (videoBtn) videoBtn.click();
+                        break;
+                    case 'hand':
+                        const raiseHandBtn = document.querySelector('[data-test="raise-hand-button"]') || document.querySelector('[data-test="lower-hand-button"]');
+                            if (raiseHandBtn) {
+                                raiseHandBtn.click();
+                            }
+                        break;
+                    case 'leave':
+                        const leaveBtn = document.querySelector('[aria-label="Leave meeting"]')
+                        if (leaveBtn) leaveBtn.click();
+                        setInterval(()=>{
+                            const leaveBtn = document.querySelector('[data-key="leave-meeting"]');
+                            if (leaveBtn) {
+                                leaveBtn.click()
+                            }
+                        }, 2000)
+                        break;
+                }
+            }
         }
 
         function autoJoin() {
@@ -163,7 +194,14 @@ const injectMeetingControls = (webContents) => {
                 pollForButton('div[role="button"], button', 'ask to join', () => {
                     console.log("Successfully joined Google Meet");
                 });
+                pollForButton('div[role="button"], button', 'other ways to join', () => {
+                    console.log("Successfully joined Google Meet");
+                });
+                pollForButton('div[role="button"], button', 'join here too', () => {
+                    console.log("Successfully joined Google Meet");
+                });
             }
+
             // Microsoft Teams
             else if (url.includes('teams.live.com') || url.includes('teams')) {
                 console.log("Detected Microsoft Teams");
@@ -177,8 +215,18 @@ const injectMeetingControls = (webContents) => {
             else if(url.includes('zoom.us')){
                 console.log("Detected Zoom");
                 pollForButton('.preview-join-button, button[data-tid*="join"]', 'join', () => {
-                        console.log("Successfully joined Zoom");
-                    });
+                    console.log("Successfully joined Zoom");
+                });
+            }
+
+            // Webex
+            else if(url.includes('webex.com')){
+                pollForButton('[aria-label="Join from browser"], div[role="button"], button', 'join', () => {
+                    console.log("Successfully joined Webex via browser");
+                });
+                pollForButton('[data-test="join-button"]"], div[role="button"], button', 'join', () => {
+                    console.log("Successfully joined Webex via browser");
+                });
             }
         }
 

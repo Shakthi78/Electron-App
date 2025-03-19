@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 // import { X } from "lucide-react"
 import Button from "./Button"
+import Whatfix from "../../../Whatfix.png"
+
 
 interface Close {
   handleClose?: () => void
@@ -9,7 +11,7 @@ interface Close {
 
 export default function Dialog({handleClose}: Close) {
   const [isOpen, setIsOpen] = useState(false)
-  const buttonRef = useRef<HTMLButtonElement>(null)
+  const buttonRef = useRef<HTMLImageElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
 
   const handleOpenDialog = () => {
@@ -38,7 +40,8 @@ export default function Dialog({handleClose}: Close) {
 
   return (
     <div className="flex items-center justify-center">
-      <Button size="md" text={"Leave"} reference={buttonRef} onClick={handleOpenDialog}/>
+        <img ref={buttonRef} src={Whatfix} alt="Whatfix" className="h-20 w-56" onClick={handleOpenDialog}/> 
+      {/* <Button size="md" text={"Leave"} reference={buttonRef} onClick={handleOpenDialog}/> */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -53,11 +56,14 @@ export default function Dialog({handleClose}: Close) {
             }}
             style={{
               position: "absolute",
-              bottom: buttonRef.current
-                ? window.innerHeight - buttonRef.current.getBoundingClientRect().top + 10
+              top: buttonRef.current
+                ? buttonRef.current.getBoundingClientRect().bottom + window.scrollY + 10
                 : "auto",
-              left: buttonRef.current ? buttonRef.current.getBoundingClientRect().left : "auto",
-              transformOrigin: "bottom left",
+              left: buttonRef.current
+                ? buttonRef.current.getBoundingClientRect().left
+                : "auto",
+              transformOrigin: "top left",
+              zIndex: 1000, // Ensure it appears above other elements
             }}
             className="w-60 bg-black text-white rounded-lg shadow-lg p-4 "
           >
