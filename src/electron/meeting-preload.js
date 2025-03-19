@@ -133,9 +133,9 @@ const injectMeetingControls = (webContents) => {
                         break;
                 }
             }
-            // webex Controls
-            else if(url.includes('webex')){
-                switch: (action){
+            // Webex Controls
+            else if(url.includes('webex.com')){
+                switch (action) {
                     case 'mute': 
                         const muteBtn = document.querySelector('[aria-label="Microphone is currently unmuted - click to mute"]') || 
                                         document.querySelector('[aria-label="Microphone is currently muted - click to unmute"]');
@@ -224,7 +224,7 @@ const injectMeetingControls = (webContents) => {
                 pollForButton('[aria-label="Join from browser"], div[role="button"], button', 'join', () => {
                     console.log("Successfully joined Webex via browser");
                 });
-                pollForButton('[data-test="join-button"]"], div[role="button"], button', 'join', () => {
+                pollForButton('[data-test="join-button"]', 'join meeting', () => {
                     console.log("Successfully joined Webex via browser");
                 });
             }

@@ -3,7 +3,7 @@ import Button from "./Button"
 import Zoom from '../assets/Zoom.png'
 import Teams from '../assets/Team.png'
 import Google from '../assets/Google.png'
-import Webex from '../assets/Google.png'
+import Webex from '../assets/Webex.png'
 import { Meeting } from "./Meetings"
 
 let media: MediaStream | null;
@@ -29,6 +29,7 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
     }
     else if(meetingLink?.includes('webex')){
       setLogo("webex")
+      console.log("webx")
     }
   }, [])
   
@@ -51,7 +52,7 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
             {logo === 'zoom' && <img src={Zoom} alt="Zoom" /> }
             {logo === 'teams' && <img src={Teams} alt="Teams" /> }
             {logo === 'google' && <img src={Google} alt="Google" /> }
-            {logo === 'webex' && <img src={Webex} alt="webex" /> }
+            {logo === 'webex' && <img src={Webex} alt="Webex" /> }
           </div>
           <Button text="Start" size="md" onClick={handleClick}/>
         </div>

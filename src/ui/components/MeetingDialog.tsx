@@ -37,7 +37,7 @@ function MeetingDialog() {
         window.electronAPI.startMeeting(`https://meet.google.com/${meetingId}`)
       }
       else if(selectedPlatform === "webex"){
-        window.electronAPI.startMeeting(`https://meet1502.webex.com/wbxmjs/joinservice/site/meet1502/meetingNumber/${meetingId.replace(/\s/g, '')}`);
+        window.electronAPI.startMeeting(`https://meet1502.webex.com/meet1502/j.php?MTID=${meetingId.replace(/\s/g, '')}`);
       }
       else if(selectedPlatform === "teams"){
         window.electronAPI.startMeeting(`https://teams.live.com/meet/${meetingId.replace(/\s/g, '')}?p=${password}`)
