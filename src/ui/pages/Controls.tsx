@@ -4,18 +4,28 @@ import '../App.css'
 import { BsThreeDots } from "react-icons/bs";
 import Dialog from '../components/Dialog';
 import { handleCloseClick } from './Home';
-import { VscMic } from "react-icons/vsc";
 import Button from '../components/Button';
-import { IoVideocamOutline } from 'react-icons/io5';
+import { FiMic } from "react-icons/fi";
+import { FiMicOff } from "react-icons/fi";
+import { HiOutlineVideoCamera } from "react-icons/hi2";
+import { HiOutlineVideoCameraSlash } from "react-icons/hi2";
 import { LiaHandPaper } from "react-icons/lia";
+import { stopMediaAccess } from '../components/MeetingCard';
+import { useState } from 'react';
+
 
 function Controls() {
+  const [mute, setMute] = useState<boolean>(false)
+  const [video, setVideo] = useState<boolean>(false)
+  const [hand, setHand] = useState<boolean>(false)
+
   const handleControl = (action: string) => {
     window.electronAPI.controlMeeting(action);
     console.log(`Control triggered: ${action}`);
   };
 
-  const handleCloseMeeting = () => {
+  const handleCloseMeeting = async () => {
+    stopMediaAccess()
     handleControl('leave')
     setTimeout(() => {
       window.electronAPI.closeMeeting()
@@ -45,13 +55,13 @@ function Controls() {
           </div>
         </div>
         <div className='w-1/3 h-20 rounded-xl text-white flex gap-3'>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => handleControl('mute')}>
-            <VscMic size={'40px'}/>
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() =>{ handleControl('mute'); setMute(!mute)}}>
+            { mute === false ? <FiMic size={'40px'}/> : <FiMicOff size={"40px"} /> }
           </div>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => handleControl('video')}>
-            <IoVideocamOutline size={'40px'}/>
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => {handleControl('video'); setVideo(!video)}}>
+            { video === false ? <HiOutlineVideoCamera size={'40px'}/>: <HiOutlineVideoCameraSlash size={'40px'}/>}
           </div>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => handleControl('hand')}>
+          <div className={`${hand === false ? "bg-zinc-900 hover:bg-neutral-700": "bg-blue-500"} rounded-xl flex justify-center items-center w-1/3 h-20 `} onClick={() => {handleControl('hand'); setHand(!hand)}}>
             <LiaHandPaper size={'40px'}/>
           </div>
         </div>

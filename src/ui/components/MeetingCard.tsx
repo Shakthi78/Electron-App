@@ -3,13 +3,16 @@ import Button from "./Button"
 import Zoom from '../assets/Zoom.png'
 import Teams from '../assets/Team.png'
 import Google from '../assets/Google.png'
+import Webex from '../assets/Google.png'
 import { Meeting } from "./Meetings"
+
+let media: MediaStream | null;
 
 const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, meetingLink}) => {
   const [logo, setLogo] = useState<string>("")
 
   const handleClick = async() => {
-    await requestMediaAccess()
+    media = await requestMediaAccess()
     window.electronAPI.startMeeting(meetingLink);
     console.log("Meeting has started")
   }
@@ -23,6 +26,9 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
     }
     else if(meetingLink?.includes('google')){
       setLogo("google")
+    }
+    else if(meetingLink?.includes('webex')){
+      setLogo("webex")
     }
   }, [])
   
@@ -45,6 +51,7 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
             {logo === 'zoom' && <img src={Zoom} alt="Zoom" /> }
             {logo === 'teams' && <img src={Teams} alt="Teams" /> }
             {logo === 'google' && <img src={Google} alt="Google" /> }
+            {logo === 'webex' && <img src={Webex} alt="webex" /> }
           </div>
           <Button text="Start" size="md" onClick={handleClick}/>
         </div>
@@ -67,5 +74,13 @@ async function requestMediaAccess() {
       console.error('Media access denied:', error.name, error.message);
       alert(`Failed to access media devices: ${error.name} - ${error.message}`);
       throw error;
+  }
+}
+
+export function stopMediaAccess() {
+  if (media) {
+    media.getTracks().forEach((track : any) => track.stop());
+    console.log('Media stream stopped.');
+    media = null;
   }
 }

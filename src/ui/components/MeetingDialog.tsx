@@ -4,6 +4,7 @@ import Button from "./Button"
 import Zoom from "../assets/Zoom.png";
 import Teams from "../assets/Team.png";
 import Google from "../assets/Google.png";
+import Webex from "../assets/webex.png";
 
 function MeetingDialog() {
   const [isOpen, setIsOpen] = useState(false)
@@ -34,6 +35,9 @@ function MeetingDialog() {
       // Logic to join Zoom or Teams meeting
       if(selectedPlatform === "google-meet-join"){
         window.electronAPI.startMeeting(`https://meet.google.com/${meetingId}`)
+      }
+      else if(selectedPlatform === "webex"){
+        window.electronAPI.startMeeting(`https://meet1502.webex.com/wbxmjs/joinservice/site/meet1502/meetingNumber/${meetingId.replace(/\s/g, '')}`);
       }
       else if(selectedPlatform === "teams"){
         window.electronAPI.startMeeting(`https://teams.live.com/meet/${meetingId.replace(/\s/g, '')}?p=${password}`)
@@ -73,6 +77,16 @@ function MeetingDialog() {
         <div className="dialog-body">
           <div className="platform-options">
             <div
+              className={`platform-option ${selectedPlatform === "google-meet" || selectedPlatform === "google-meet-join" || selectedPlatform === "google-meet-start" ? "selected" : ""} text-center`}
+              onClick={() => setSelectedPlatform("google-meet")}
+              >
+              <div className="platform-icon">
+                <img src={Google} alt="Google" />
+              </div>
+              <span>Meet</span>
+            </div>
+
+            <div
               className={`platform-option ${selectedPlatform === "zoom" ? "selected" : ""}`}
               onClick={() => setSelectedPlatform("zoom")}
             >
@@ -93,14 +107,15 @@ function MeetingDialog() {
             </div>
 
             <div
-              className={`platform-option ${selectedPlatform === "google-meet" || selectedPlatform === "google-meet-join" || selectedPlatform === "google-meet-start" ? "selected" : ""} text-center`}
-              onClick={() => setSelectedPlatform("google-meet")}
+              className={`platform-option ${selectedPlatform === "webex" ? "selected" : ""}`}
+              onClick={() => setSelectedPlatform("webex")}
             >
               <div className="platform-icon">
-                <img src={Google} alt="Google" />
+                <img src={Webex} alt="webex" />
               </div>
-              <span>Meet</span>
+              <span>Webex</span>
             </div>
+
           </div>
 
           {selectedPlatform === "google-meet" && (
@@ -110,7 +125,7 @@ function MeetingDialog() {
             </div>
           )}
 
-          {(selectedPlatform === "zoom" || selectedPlatform === "teams" || selectedPlatform === "google-meet-join" ) && (
+          {(selectedPlatform === "zoom" || selectedPlatform === "teams" || selectedPlatform === "google-meet-join"|| selectedPlatform === "webex" ) && (
             <div className="meeting-details">
               <div className="form-group">
                 <label htmlFor="meeting-id">Meeting ID</label>
@@ -123,7 +138,7 @@ function MeetingDialog() {
                 />
               </div>
 
-              {selectedPlatform !== "google-meet-join" && (
+              {selectedPlatform !== "google-meet-join" && selectedPlatform!== "webex"&& (
                 <div className="form-group">
                 <label htmlFor="password">Password</label>
                 <input
@@ -135,7 +150,6 @@ function MeetingDialog() {
                 />
               </div>
               )}
-
             </div>
           )}
 
@@ -143,7 +157,7 @@ function MeetingDialog() {
             className="join-button"
             onClick={handleJoinMeeting}
             disabled={
-              selectedPlatform === null || ((selectedPlatform === "zoom" || selectedPlatform === "teams" || selectedPlatform === "google-meet" || selectedPlatform === "google-meet-join") && !meetingId)
+              selectedPlatform === null || ((selectedPlatform === "webex" || selectedPlatform === "zoom" || selectedPlatform === "teams" || selectedPlatform === "google-meet" || selectedPlatform === "google-meet-join") && !meetingId)
             }
           >
             {selectedPlatform === "google-meet-start"
