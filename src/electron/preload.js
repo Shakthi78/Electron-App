@@ -16,5 +16,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
       callback(userData);
     });
   },
-  openKeyboard: () => ipcRenderer.send('open-keyboard')
+  openKeyboard: () => ipcRenderer.send('open-keyboard'),
+  moveMouse: (deltaX, deltaY) => ipcRenderer.send("move-mouse", deltaX, deltaY),
 })

@@ -29,7 +29,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  /* z-index: 1000; */
 }
 
 .dialog-content {
@@ -171,3 +171,63 @@
   cursor: not-allowed;
 }
 
+.custom-keyboard {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #272525; /* Light gray like Windows Virtual Keyboard */
+  border-radius: 10px;
+  width: 100%;
+  max-width: 700px; /* Slightly wider for a realistic look */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.keyboard-key {
+  width: 45px; /* Standard key size */
+  height: 45px;
+  margin: 3px;
+  font-size: 18px;
+  font-family: "Segoe UI", sans-serif; /* Windows-like font */
+  background-color: black;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Slight elevation */
+  cursor: pointer;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.1s;
+}
+
+.keyboard-key:hover {
+  background-color: #3f3a3a; /* Light gray hover effect */
+}
+
+.keyboard-key:active {
+  background-color: #3f3a3a; /* Darker press effect */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2); /* Pressed look */
+}
+
+/* Special Keys */
+.space-key {
+  width: 200px; /* Wide Space key like Windows */
+}
+
+.special-key {
+  width: 70px; /* Slightly wider for Shift, Backspace, Enter, Tab */
+  background-color: #e0e0e0; /* Distinct color for special keys */
+}
+
+.special-key:hover {
+  background-color: #d0d0d0;
+}
+
+.special-key:active {
+  background-color: #b0b0b0;
+}

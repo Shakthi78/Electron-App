@@ -5,9 +5,11 @@ import Dialog from "../components/Dialog"
 import Sidebar from "../components/Sidebar"
 import MeetingDialog from "../components/MeetingDialog"
 import OneRoom from "../../../OneRoom1.png"
+import VirtualTouchpad from "../components/VirtualTouchpad"
 
 const Home = () => {
   const [roomName, setRoomName] = useState("")
+  const [showTouchpad, setShowTouchpad] = useState<boolean>(false);
   const [time, setTime] = useState(new Date().toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -61,8 +63,9 @@ const Home = () => {
       <div className='w-full h-10 flex justify-start px-5 hover:cursor-pointer'>
         <Sidebar/>
         {/* <Dialog handleClose={handleCloseClick}/> */}
-        {/* <Button text="Keyboard" size="md" onClick={()=> window.electronAPI.openKeyboard()} /> */}
-      </div>     
+        <Button text="Keyboard" size="md" onClick={()=> {window.electronAPI.openKeyboard(); setShowTouchpad(true)}} />
+      </div>  
+      {showTouchpad && <VirtualTouchpad/>}   
     </div>
   )
 }

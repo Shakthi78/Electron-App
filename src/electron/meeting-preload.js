@@ -134,17 +134,17 @@ const injectMeetingControls = (webContents) => {
                 }
             }
             // Webex Controls
-            else if(url.includes('webex.com')){
+            else if (url.includes('webex.com')) {
                 switch (action) {
-                    case 'mute': 
+                    case 'mute':
                         const muteBtn = document.querySelector('[aria-label="Microphone is currently unmuted - click to mute"]') || 
                                         document.querySelector('[aria-label="Microphone is currently muted - click to unmute"]');
-                            if (muteBtn) muteBtn.click();
+                        if (muteBtn) muteBtn.click();
                         break;
                     case 'video':
                         const videoBtn = document.querySelector('[aria-label="Sending video is currently disabled - click to enable"]') || 
                                         document.querySelector('[aria-label="Sending video is currently enabled - click to disable"]');
-                        if (videoBtn) videoBtn.click();
+                            if (videoBtn) videoBtn.click();
                         break;
                     case 'hand':
                         const raiseHandBtn = document.querySelector('[data-test="raise-hand-button"]') || document.querySelector('[data-test="lower-hand-button"]');
@@ -158,9 +158,9 @@ const injectMeetingControls = (webContents) => {
                         setInterval(()=>{
                             const leaveBtn = document.querySelector('[data-key="leave-meeting"]');
                             if (leaveBtn) {
-                                leaveBtn.click()
+                                leaveBtn.click();
                             }
-                        }, 2000)
+                        }, 2000);
                         break;
                 }
             }

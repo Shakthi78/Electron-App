@@ -13,11 +13,8 @@ let secondaryDisplay;
 let authWindow;
 
 function openOnScreenKeyboard() {
-    // exec("osk", (error) => {
-    //     if (error) console.error("Failed to open keyboard:", error);
-    // });
-    exec('start "" "C:\\Program Files\\Common Files\\microsoft shared\\ink\\TabTip.exe"', (error) => {
-        if (error) console.error("Failed to open Touch Keyboard:", error);
+    exec("osk", (error) => {
+        if (error) console.error("Failed to open keyboard:", error);
     });
 }
 
@@ -249,7 +246,19 @@ app.whenReady().then(async() => {
 //Open onScreen Keyboard
 ipcMain.on("open-keyboard", ()=>{
     openOnScreenKeyboard()
+    
 })
+
+//Mouse move
+ipcMain.on("move-mouse", (event, deltaX, deltaY) => {
+    const { screen } = require("electron");
+    const point = screen.getCursorScreenPoint();
+    const newX = point.x + deltaX;
+    const newY = point.y + deltaY;
+  
+    // Move the system cursor
+    // require("robotjs").moveMouse(newX, newY);
+  });
 
 //Handle request for Googlr calendar authentication
 ipcMain.on("authenticate-google", (event, url)=>{
@@ -291,12 +300,17 @@ ipcMain.on('start-meeting', (event, url)=>{
 ipcMain.on('close-meeting', ()=>{
     if(secondaryWindow){
         loadRouteInWindow(secondaryWindow, '/')
-        if(meetingWindow) {
-            console.log("ksndkcnajknasn")
-            meetingWindow.close()
-        }else{
-            console.log("ksndkcnajknasn")
+        try {
+            if(meetingWindow) {
+                console.log("ksndkcnajknasn")
+                meetingWindow.close()
+            }else{
+                console.log("ksndkcnajknasn")
+            } 
+        } catch (error) {
+            console.log("error in close meeting")
         }
+        
     }
 })
 

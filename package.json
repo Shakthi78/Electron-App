@@ -18,6 +18,7 @@
     "@types/axios": "^0.9.36",
     "axios": "^1.8.2",
     "framer-motion": "^12.4.7",
+    "lucide-react": "^0.483.0",
     "network": "^0.7.0",
     "os": "^0.1.2",
     "react": "^19.0.0",
