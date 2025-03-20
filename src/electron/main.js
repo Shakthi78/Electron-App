@@ -257,7 +257,7 @@ ipcMain.on("move-mouse", (event, deltaX, deltaY) => {
     const newY = point.y + deltaY;
   
     // Move the system cursor
-    // require("robotjs").moveMouse(newX, newY);
+    require("robotjs").moveMouse(newX, newY);
   });
 
 //Handle request for Googlr calendar authentication
