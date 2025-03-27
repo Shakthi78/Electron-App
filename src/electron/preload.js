@@ -17,5 +17,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     });
   },
   openKeyboard: () => ipcRenderer.send('open-keyboard'),
-  moveMouse: (deltaX, deltaY) => ipcRenderer.send("move-mouse", deltaX, deltaY),
+  setVolume: (volume) => ipcRenderer.invoke('set-volume', volume),
+  getVolume: () => ipcRenderer.invoke('get-volume'),
+  increaseVolume: () => ipcRenderer.invoke('increase-volume'),
+  decreaseVolume: () => ipcRenderer.invoke('decrease-volume'),
 })

@@ -11,7 +11,10 @@
         authGoogle: (url) => void;
         onUserEmail: (callback: (email: string) => void) => void;
         openKeyboard: () => void;
-        moveMouse: (deltaX, deltaY) => void;
+        setVolume: (volume) => void;
+        getVolume: () => Promise;
+        increaseVolume: () => void;
+        decreaseVolume: () => void;
       };
     }
   }

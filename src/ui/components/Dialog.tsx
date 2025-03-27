@@ -13,6 +13,7 @@ export default function Dialog({handleClose}: Close) {
   const [isOpen, setIsOpen] = useState(false)
   const buttonRef = useRef<HTMLImageElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
+  const holdTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const handleOpenDialog = () => {
     setIsOpen(true)
@@ -38,9 +39,29 @@ export default function Dialog({handleClose}: Close) {
     }
   }, [isOpen, handleCloseDialog])
 
+  // Handle Mouse Down / Touch Start (Start Timer)
+  const handleMouseDown = () => {
+    holdTimeout.current = setTimeout(() => {
+      handleOpenDialog()
+    }, 4000) // 4-second hold to open
+  }
+
+  // Handle Mouse Up / Touch End (Cancel Timer)
+  const handleMouseUp = () => {
+    if (holdTimeout.current) {
+      clearTimeout(holdTimeout.current)
+    }
+  }
+
   return (
     <div className="flex items-center justify-center">
-        <img ref={buttonRef} src={Whatfix} alt="Whatfix" className="h-20 w-56" onClick={handleOpenDialog}/> 
+        <img ref={buttonRef} src={Whatfix} alt="Whatfix" className="h-40 w-64 select-none" 
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleMouseDown}
+        onTouchEnd={handleMouseUp}
+        /> 
       {/* <Button size="md" text={"Leave"} reference={buttonRef} onClick={handleOpenDialog}/> */}
       <AnimatePresence>
         {isOpen && (

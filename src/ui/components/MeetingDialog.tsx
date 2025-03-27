@@ -6,6 +6,7 @@ import Teams from "../assets/Team.png";
 import Google from "../assets/Google.png";
 import Webex from "../assets/webex.png";
 import { SkipBackIcon as Backspace, ArrowUp, CornerDownLeft } from "lucide-react";
+import { IoVideocamOutline } from "react-icons/io5";
 
 function MeetingDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -168,14 +169,14 @@ function MeetingDialog() {
   if (!isOpen) {
     return (
       <div className="text-white border-none flex flex-col">
-        <Button icon={true} text="New Call" size="lg" color="black" onClick={openDialog} />
+        <Button icon={<IoVideocamOutline size={"30px"}/>} text="New Call" size="lg" color="black" onClick={openDialog} />
       </div>
     );
   }
 
   return (
     <>
-    <div className="dialog-overlay" >
+    <div className="dialog-overlay select-none" >
       <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
         <div className="dialog-header">
           <h2>Join a Meeting</h2>

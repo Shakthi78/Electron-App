@@ -1,6 +1,3 @@
-import { IoVideocamOutline } from "react-icons/io5";
-
-
 interface ButtonProps {
     text: string;
     size: "sm" | "md" | "lg";
@@ -10,6 +7,7 @@ interface ButtonProps {
     type? : "submit";
     icon?: any
 }
+
 const Button = ({text, size, reference, onClick, color, type, icon}: ButtonProps) => {
 
   const sizeValues = {
@@ -26,7 +24,7 @@ const Button = ({text, size, reference, onClick, color, type, icon}: ButtonProps
   }
 
   return (   
-    <button ref={reference} type={type} onClick={onClick} className={`${sizeValues[size]} hover:cursor-pointer ${colorValues[color ?? "none"]} flex flex-col justify-center items-center gap-3`}>{ icon &&  <IoVideocamOutline size={'30px'}/>} <h2 className="text-sm">{text}</h2></button>
+    <button ref={reference} type={type} onClick={onClick} className={`${sizeValues[size]} hover:cursor-pointer ${colorValues[color ?? "none"]} flex flex-col justify-center items-center gap-3 select-none`}>{icon} <h2 className="text-sm">{text}</h2></button>
   )
 }
 

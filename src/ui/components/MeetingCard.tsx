@@ -37,18 +37,18 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
   return (
     <div className="w-full h-40 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl mt-2" >
         <div className="flex flex-col text-medium gap-5">
-          <h1 className="text-xl font-semibold mt-2">{title}</h1>
+          <h1 className="text-xl font-semibold mt-2 select-none">{title}</h1>
           <div>
             <div className="flex gap-3">
-              <h1 className="text-sm font-light">{startTime}</h1>
-              <h1 className="text-sm font-light">{endTime}</h1>
+              <h1 className="text-sm font-light select-none">{startTime}</h1>
+              <h1 className="text-sm font-light select-none">{endTime}</h1>
             </div>
-            <h1 className="text-medium font-light">{organizer}</h1>
+            <h1 className="text-medium font-light select-none">{organizer}</h1>
           </div>
           
         </div>
         <div className="flex flex-col items-center text-center gap-7 mt-4">
-          <div className="w-10 h-3 flex justify-center items-center">
+          <div className="w-10 h-3 flex justify-center items-center select-none">
             {logo === 'zoom' && <img src={Zoom} alt="Zoom" /> }
             {logo === 'teams' && <img src={Teams} alt="Teams" /> }
             {logo === 'google' && <img src={Google} alt="Google" /> }

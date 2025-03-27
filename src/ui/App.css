@@ -86,10 +86,11 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
+  background-color: rgb(51, 47, 47);
 }
 
 .platform-option:hover {
-  background-color: #353236;
+  background-color: #605e61;
 }
 
 .platform-option.selected {

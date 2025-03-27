@@ -22,46 +22,44 @@ const Meetings = () => {
 
     const roomName = localStorage.getItem('room') as string;
 
-    const fetchMeetings = async (roomname: string)=>{
-      const response: any = await axios.get(`https://exceleed.in/api/v1/meetings/${roomname}`)
+    const fetchMeetings = async (roomname: string) => {
+      const response: any = await axios.get(`https://exceleed.in/api/v1/meetings/${roomname}`);
       const rawMeetings = response.data as Meeting[];
-
-      // Parse and sort meetings by startTime, format both startTime and endTime
+    
+      // Get 6 AM of today
+      const today6AM = new Date();
+      today6AM.setHours(6, 0, 0, 0); // Set to 6 AM today
+    
+      // Get 6 AM of the next day
+      const tomorrow6AM = new Date(today6AM);
+      tomorrow6AM.setDate(today6AM.getDate() + 1); // Move to the next day
+    
+      // Get current time
+      const now = new Date();
+    
+      // Parse, filter, sort, and format meetings
       const sortedMeetings = rawMeetings
-      .map((meeting) => {
-        // Parse startTime and endTime into Date objects
-        const startTimeDate = new Date(
-          meeting.startTime.replace(/(\d{2})-(\d{2})-(\d{4})/, "$3-$2-$1") // "2025-03-14 04:00:00 PM"
-        );
-        const endTimeDate = new Date(
-          meeting.endTime.replace(/(\d{2})-(\d{2})-(\d{4})/, "$3-$2-$1") // "2025-03-14 05:00:00 PM"
-        );
-        
-        // Format to hours and minutes only (e.g., "04:00 PM")
-        const formattedStartTime = startTimeDate.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        });
-        const formattedEndTime = endTimeDate.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        });
-
-        return {
+        .map((meeting) => {
+          // Convert DD-MM-YYYY to YYYY-MM-DD format for Date parsing
+          const startTimeDate = new Date(meeting.startTime.replace(/(\d{2})-(\d{2})-(\d{4})/, "$3-$2-$1"));
+          const endTimeDate = new Date(meeting.endTime.replace(/(\d{2})-(\d{2})-(\d{4})/, "$3-$2-$1"));
+    
+          return { ...meeting, startTimeDate, endTimeDate };
+        })
+        .filter(({ startTimeDate, endTimeDate }) => 
+          startTimeDate >= today6AM && startTimeDate < tomorrow6AM && endTimeDate > now // Remove past meetings
+        )
+        .sort((a, b) => a.startTimeDate.getTime() - b.startTimeDate.getTime()) // Sort by startTime
+        .map(({ startTimeDate, endTimeDate, ...meeting }) => ({
           ...meeting,
-          startTimeDate, // Temporary for sorting
-          startTime: formattedStartTime, // Overwrite with formatted time
-          endTime: formattedEndTime,     // Overwrite with formatted time
-        };
-      })
-      .sort((a, b) => a.startTimeDate.getTime() - b.startTimeDate.getTime()) // Sort by startTime
-      .map(({ startTimeDate, ...rest }) => rest); // Remove temporary startTimeDate
-
+          startTime: startTimeDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true }),
+          endTime: endTimeDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true }),
+        }));
+    
       setMeetings(sortedMeetings);
-      console.log("Meetings", response.data)
+      console.log("Meetings", sortedMeetings);
     }
+    
 
     useEffect(() => {
       fetchMeetings(roomName);
@@ -76,11 +74,6 @@ const Meetings = () => {
       return () => unsubscribe();
     }, []);
     
-      
-
-    //   useEffect(()=>{
-    //     fetchMeetings(roomName)
-    //   }, [])
   return (
     <div className="relative w-1/3 h-96 mt-5 overflow-y-scroll flex flex-col gap-2 custom-scrollbar mask-gradient pt-4">
         {meetings.map((item, i)=>(
@@ -88,7 +81,7 @@ const Meetings = () => {
         ))}
 
         {meetings.length === 0 && (
-          <div className="w-full h-40 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl mt-2" >
+          <div className="w-full h-40 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl mt-2 select-none" >
             <div className="flex flex-col text-medium gap-5">
               <h1 className="text-xl font-semibold mt-5">No Meeting</h1>
               <div className="mt-2">

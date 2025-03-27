@@ -24,7 +24,7 @@ const Settings = () => {
   const [selectedTab, setSelectedTab] = useState("network");
   const [networkInfo, setNetworkInfo] = useState({type: "Loading...", name: "Loading..."});
   const [selectedCalendar, setSelectedCalendar] = useState("none")
-  const [selectedRoom, setSelectedRoom] = useState("none");
+  const [selectedRoom, setSelectedRoom] = useState("");
   const [email, setEmail] = useState("")
   const [rooms, setRooms] = useState<RoomType[]>([])
   const [customRoomName, setCustomRoomName] = useState<string>("")
@@ -47,11 +47,20 @@ const Settings = () => {
     fetchNetworkInfo();
     // fetchRooms("support@exceleed.in")
 
-    const handleUserEmail = (userData: string) => {
+    const handleUserEmail = async(userData: string) => {
       console.log("Received user email:", userData);
       localStorage.setItem('userEmail', userData);
       setEmail(userData)
       fetchRooms(userData);
+      await axios.post("https://exceleed.in/api/v1/watch/create", {
+        email: userData
+      })
+      await axios.get("https://exceleed.in/api/v1/calendar/push-meetings/", {
+        headers: {
+          "email": userData,
+          "Content-Type": "application/json",
+        }
+      })
     };
   
 
@@ -96,7 +105,7 @@ const Settings = () => {
   const handleSubmit = (e: any) => {
     e.preventDefault(); 
     if(selectedCalendar === "none") return;
-    window.electronAPI.authGoogle("https:exceleed.in")
+    window.electronAPI.authGoogle("https://exceleed.in")
     // setShowRoomDropdown(true);
   }
 

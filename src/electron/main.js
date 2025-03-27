@@ -13,37 +13,76 @@ let secondaryDisplay;
 let authWindow;
 
 function openOnScreenKeyboard() {
-    exec("osk", (error) => {
-        if (error) console.error("Failed to open keyboard:", error);
-    });
+  exec("osk", (error) => {
+    if (error) {
+      console.error("Failed to open keyboard:", error);
+      return;
+    }
+  });
+}
+
+// Function to hide the taskbar
+function hideTaskbar() {
+  exec(`"${nircmdPath}" win hide class Shell_TrayWnd`, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Failed to hide taskbar:", error, stderr);
+    } else {
+      console.log("Taskbar hidden");
+    }
+  });
+}
+
+// Function to show the taskbar (optional, for cleanup on app exit)
+function showTaskbar() {
+  exec(`"${nircmdPath}" win show class Shell_TrayWnd`, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Failed to show taskbar:", error, stderr);
+    } else {
+      console.log("Taskbar shown");
+    }
+  });
 }
 
 const createWindow = (display, htmlPath) => {
     const { x, y, width, height } = display.bounds;
 
     let win = new BrowserWindow({
-        x,
-        y,
-        width, // Adjust the size as needed
-        height,
-        fullscreen: true,
-        frame: false,
-        kiosk: true,
-        webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
-            devTools: true,
-            preload: path.join(app.getAppPath(), '/src/electron/preload.js')
-        },
-        
+      x,
+      y,
+      width, // Adjust the size as needed
+      height,
+      fullscreen: true,
+      frame: false,
+      kiosk: true,
+      webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true,
+          devTools: true,
+          preload: path.join(app.getAppPath(), '/src/electron/preload.js')
+      },       
     });
 
     // win.loadURL('https://your-app-url-or-file.html');
     win.loadFile(htmlPath)
     // win.loadURL(path)
     // win.maximize();
-    return win;
+    // Hide the taskbar when the window is created
+    win.on('ready-to-show', () => {
+      hideTaskbar();
+    });
 
+    // Ensure the window stays in kiosk mode
+    win.on('leave-full-screen', () => {
+      win.setKiosk(true);
+      win.setFullScreen(true);
+      hideTaskbar();
+    });
+
+    win.on('closed', () => {
+      win = null;
+    });
+
+    return win;
 }
 
 const createMeetingWindow = (display, url) => {
@@ -73,25 +112,25 @@ const createMeetingWindow = (display, url) => {
         y,
         width, // Adjust the size as needed
         height,
-        frame: true,
-        kiosk: false,
+        frame: false,
+        kiosk: true,
         webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true, 
-            devTools: true,
-            partition: 'persist:meetings',
+          nodeIntegration: false,
+          contextIsolation: true, 
+          devTools: true,
+          partition: 'persist:meetings',
         },
     });
 
     win.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
-        console.log(`Permission requested: ${permission}`);
-        if (permission === "display-capture" || permission === 'media' || permission === 'camera' || permission === 'microphone' || permission === 'display-media') {
-            console.log(`Granting permission: ${permission}`);
-            callback(true);
-        } else {
-            console.log(`Denying permission: ${permission}`);
-            callback(false);
-        }
+      console.log(`Permission requested: ${permission}`);
+      if (permission === "display-capture" || permission === 'media' || permission === 'camera' || permission === 'microphone' || permission === 'display-media') {
+        console.log(`Granting permission: ${permission}`);
+        callback(true);
+      } else {
+        console.log(`Denying permission: ${permission}`);
+        callback(false);
+      }
     });
 
     //This below code helps to prevent the meetings keep on loading.
@@ -99,28 +138,28 @@ const createMeetingWindow = (display, url) => {
     win.webContents.setUserAgent(chromeUserAgent);
 
     win.webContents.on('did-finish-load', () => {
-        console.log('Page loaded:', win.webContents.getURL());
-        injectMeetingControls(win.webContents);    
+      console.log('Page loaded:', win.webContents.getURL());
+      injectMeetingControls(win.webContents);    
     });
 
     // Allow navigation within the app
     win.webContents.on('will-navigate', (event, navigationUrl) => {
-        console.log(`Navigating to: ${navigationUrl}`);
+      console.log(`Navigating to: ${navigationUrl}`);
     });
 
     // Open external links in default browser
     win.webContents.on('new-window', (event, newUrl) => {
-        event.preventDefault();
-        require('electron').shell.openExternal(newUrl);
+      event.preventDefault();
+      require('electron').shell.openExternal(newUrl);
     });
 
     // Debug loading issues
     win.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-        console.error(`Failed to load ${validatedURL}: ${errorCode} - ${errorDescription}`);
+      console.error(`Failed to load ${validatedURL}: ${errorCode} - ${errorDescription}`);
     });
 
     win.on('closed', () => {
-        win = null;
+      win = null;
     });
 
     win.loadURL(normalizedUrl) 
@@ -175,6 +214,7 @@ const createAuthWindow = (display, url)=>{
                     if (secondaryWindow) {
                         console.log("🚀 Sending user email to secondary window:", data.user);
                         secondaryWindow.webContents.send('user-email', data.user);
+                        primaryWindow.webContents.send('user-email', data.user);
                     } else {
                         console.log("🚀 Sending user email to primary window:", data.user);
                         primaryWindow.webContents.send('user-email', data.user);
@@ -243,22 +283,79 @@ app.whenReady().then(async() => {
     }
 })
 
+// IPC handlers
+// ipcMain.on("increase-volume", () => increaseVolume());
+// ipcMain.on("decrease-volume", () => decreaseVolume());
+// ipcMain.on("set-volume", (event, volume) => setVolume(volume));
+// ipcMain.handle("get-volume", () => getVolume());
+
+// Path to nircmd.exe
+const nircmdPath = path.join(__dirname, 'nircmd.exe');
+
+// Handle setting the volume
+ipcMain.handle('set-volume', async (_, volume) => {
+  return new Promise((resolve, reject) => {
+    const volumeValue = Math.round((volume / 100) * 65535); // Scale 0-100 to 0-65535
+    const command = `"${nircmdPath}" setsysvolume ${volumeValue}`;
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Failed to set volume to ${volume}%:`, error, stderr);
+        reject(error);
+      } else {
+        console.log(`Volume set to ${volume}%`);
+        resolve();
+      }
+    });
+  });
+});
+
+// Handle getting the volume
+ipcMain.handle('get-volume', async () => {
+  return new Promise((resolve, reject) => {
+    console.log("nircmdPath", nircmdPath)
+    exec(`powershell -command "Write-Output (New-Object -ComObject WMPlayer.OCX.7).settings.volume"`, (error, stdout) => {
+      if (error) reject(error);
+      else resolve(parseInt(stdout) || 50);
+    });
+  });
+});
+
+// Handle increasing/decreasing volume
+ipcMain.handle('increase-volume', async () => {
+  return new Promise((resolve, reject) => {
+    const command = `"${nircmdPath}" changesysvolume +6553`; // ~5% increase (65535 / 20)
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Failed to increase volume:", error, stderr);
+        reject(error);
+      } else {
+        console.log("Volume increased by 5%");
+        resolve();
+      }
+    });
+  });
+});
+
+ipcMain.handle('decrease-volume', async () => {
+  return new Promise((resolve, reject) => {
+    const command = `"${nircmdPath}" changesysvolume -6553`; // ~5% decrease
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Failed to decrease volume:", error, stderr);
+        reject(error);
+      } else {
+        console.log("Volume decreased by 5%");
+        resolve();
+      }
+    });
+  });
+});
+
 //Open onScreen Keyboard
 ipcMain.on("open-keyboard", ()=>{
-    openOnScreenKeyboard()
-    
+    console.log("Open-keyboard")
+    openOnScreenKeyboard()   
 })
-
-//Mouse move
-ipcMain.on("move-mouse", (event, deltaX, deltaY) => {
-    const { screen } = require("electron");
-    const point = screen.getCursorScreenPoint();
-    const newX = point.x + deltaX;
-    const newY = point.y + deltaY;
-  
-    // Move the system cursor
-    require("robotjs").moveMouse(newX, newY);
-  });
 
 //Handle request for Googlr calendar authentication
 ipcMain.on("authenticate-google", (event, url)=>{
@@ -335,6 +432,7 @@ ipcMain.on('meeting-control', (event, action) => {
 });
 
 app.on('window-all-closed', () => {
+  showTaskbar()
   if (process.platform !== 'darwin') {
     app.quit()
   }
