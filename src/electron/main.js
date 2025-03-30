@@ -3,6 +3,19 @@ const path = require('node:path');
 const injectMeetingControls = require('./meeting-preload');
 const getNetworkInfo = require('./network');
 const { exec } = require("child_process");
+const dotenv =  require('dotenv');
+dotenv.config();
+
+// Resolve the path to nircmd.exe
+let nircmdPath;
+if (process.env.NODE_ENV === 'development') {
+  // Development mode: Use relative path
+  console.log("development")
+  nircmdPath = path.join(__dirname, 'assets', 'nircmd.exe');
+} else {
+  // Production mode: Use resources path
+  nircmdPath = path.join(process.resourcesPath, 'src', 'electron', 'assets', 'nircmd.exe');
+}
 
 let primaryWindow;
 let secondaryWindow;
@@ -284,13 +297,6 @@ app.whenReady().then(async() => {
 })
 
 // IPC handlers
-// ipcMain.on("increase-volume", () => increaseVolume());
-// ipcMain.on("decrease-volume", () => decreaseVolume());
-// ipcMain.on("set-volume", (event, volume) => setVolume(volume));
-// ipcMain.handle("get-volume", () => getVolume());
-
-// Path to nircmd.exe
-const nircmdPath = path.join(__dirname, 'nircmd.exe');
 
 // Handle setting the volume
 ipcMain.handle('set-volume', async (_, volume) => {
@@ -302,7 +308,7 @@ ipcMain.handle('set-volume', async (_, volume) => {
         console.error(`Failed to set volume to ${volume}%:`, error, stderr);
         reject(error);
       } else {
-        console.log(`Volume set to ${volume}%`);
+        // console.log(`Volume set to ${volume}%`);
         resolve();
       }
     });
@@ -323,13 +329,13 @@ ipcMain.handle('get-volume', async () => {
 // Handle increasing/decreasing volume
 ipcMain.handle('increase-volume', async () => {
   return new Promise((resolve, reject) => {
-    const command = `"${nircmdPath}" changesysvolume +6553`; // ~5% increase (65535 / 20)
+    const command = `powershell -Command "$ws = New-Object -ComObject WScript.Shell; for ($i = 0; $i -lt 5; $i++) { $ws.SendKeys([char]175) }"`;
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error("Failed to increase volume:", error, stderr);
         reject(error);
       } else {
-        console.log("Volume increased by 5%");
+        // console.log("Volume increased by 10%");
         resolve();
       }
     });
@@ -338,13 +344,13 @@ ipcMain.handle('increase-volume', async () => {
 
 ipcMain.handle('decrease-volume', async () => {
   return new Promise((resolve, reject) => {
-    const command = `"${nircmdPath}" changesysvolume -6553`; // ~5% decrease
+    const command = `powershell -Command "$ws = New-Object -ComObject WScript.Shell; for ($i = 0; $i -lt 5; $i++) { $ws.SendKeys([char]174) }"`;
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error("Failed to decrease volume:", error, stderr);
         reject(error);
       } else {
-        console.log("Volume decreased by 5%");
+        // console.log("Volume decreased by 10%");
         resolve();
       }
     });
