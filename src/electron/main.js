@@ -3,8 +3,6 @@ const path = require('node:path');
 const injectMeetingControls = require('./meeting-preload');
 const getNetworkInfo = require('./network');
 const { exec } = require("child_process");
-const dotenv =  require('dotenv');
-dotenv.config();
 
 // Resolve the path to nircmd.exe
 let nircmdPath;

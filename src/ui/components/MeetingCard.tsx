@@ -6,7 +6,7 @@ import Google from '../assets/Google.png'
 import Webex from '../assets/Webex.png'
 import { Meeting } from "./Meetings"
 
-let media: MediaStream | null;
+let media: MediaStream | undefined | null;
 
 const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, meetingLink}) => {
   const [logo, setLogo] = useState<string>("")
@@ -64,17 +64,15 @@ export default MeetingCard
 
 async function requestMediaAccess() {
   try {
-      console.log("Requesting media devices in renderer...");
-      const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: true,
-      });
-      console.log('Media access granted:', stream);
-      return stream;
+    console.log("Requesting media devices in renderer...");
+    const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+    });
+    console.log('Media access granted:', stream);
+    return stream;
   } catch (error: any) {
-      console.error('Media access denied:', error.name, error.message);
-      alert(`Failed to access media devices: ${error.name} - ${error.message}`);
-      throw error;
+    console.error('Media access denied:', error.name, error.message);
   }
 }
 
