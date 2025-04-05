@@ -7,11 +7,14 @@ import Sidebar from "../components/Sidebar"
 import OneRoom from "../../../OneRoom1.png"
 import { FaRegKeyboard } from "react-icons/fa";
 import { IoVideocamOutline } from "react-icons/io5"
+import { LuTouchpad } from "react-icons/lu";
 import MeetingDialog from "../components/dialog-components/MeetingDialog"
+import Touchpad from "../components/dialog-components/Touchpad"
 
 const Home = () => {
   const [roomName, setRoomName] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isTouch, setIsTouch] = useState(false)
   const [time, setTime] = useState(new Date().toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -38,7 +41,14 @@ const Home = () => {
   }
   }, [])
     
-  const weekday = new Date().toLocaleDateString("en-US", { weekday: "long" });
+  const formatDate = (date: Date): string => {
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    }).format(date);
+  };
 
   return (
     <div className="bg-container h-screen flex items-center flex-col">
@@ -50,9 +60,9 @@ const Home = () => {
       <div className='w-full h-full p-5 flex justify-center items-center gap-24'>
         <Meetings/>
         <div className='w-1/3 h-96 mt-5 flex flex-col items-center'>
-          <div className='text-6xl text-center mt-10 '>
+          <div className='text-6xl text-center mt-9'>
             <h1 className="select-none">{time}</h1>
-            <h1 className='text-2xl font-semibold mt-2 select-none'>{weekday}</h1>
+            <h1 className='text-2xl font-semibold mt-3 select-none'>{formatDate(new Date())}</h1>
           </div> 
 
           <div className='flex gap-2 mt-18 text-white'>
@@ -62,6 +72,9 @@ const Home = () => {
             {/* <Button color="black" text="Video Call" size='lg'/> */}
             <Button icon={<FaRegKeyboard size={"30px"}/>}  text="Keyboard" size="lg" color="black" onClick={()=> window.electronAPI.openKeyboard()} />
             <Sidebar/>
+
+            <Button icon={<LuTouchpad size={"30px"}/>} text="New Call" size="lg" color="black" onClick={() => setIsTouch(true)} />
+            {isTouch && <Touchpad onClose={() => setIsTouch(false)} />}
           </div>  
         </div>      
       </div>     

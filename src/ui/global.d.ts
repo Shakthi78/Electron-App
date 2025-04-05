@@ -15,6 +15,9 @@
         getVolume: () => Promise;
         increaseVolume: () => void;
         decreaseVolume: () => void;
+        moveMouse: (x, y) => void,
+        mouseClick: (button) => void,
+        toggleMute: () => void;
       };
     }
   }

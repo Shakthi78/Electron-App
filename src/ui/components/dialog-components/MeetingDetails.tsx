@@ -99,7 +99,7 @@ export default function MeetingDetails({ meetingType, onBack, close }: MeetingDe
               Password
             </label>
             <input
-              type="password"
+              type="text"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

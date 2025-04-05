@@ -3,6 +3,7 @@ const path = require('node:path');
 const injectMeetingControls = require('./meeting-preload');
 const getNetworkInfo = require('./network');
 const { exec } = require("child_process");
+const robot = require('robotjs');
 
 // Resolve the path to nircmd.exe
 let nircmdPath;
@@ -295,6 +296,23 @@ app.whenReady().then(async() => {
 })
 
 // IPC handlers
+// Handle moving the mouse
+ipcMain.on('move-mouse', (_, x, y) => {
+  const screenWidth = robot.getScreenSize().width;
+  const screenHeight = robot.getScreenSize().height;
+
+  // Scale touchpad coordinates to screen resolution
+  const scaledX = Math.round((x / 320) * screenWidth); // Assuming touchpad width is 320px
+  const scaledY = Math.round((y / 320) * screenHeight); // Assuming touchpad height is 320px
+
+  robot.moveMouse(scaledX, scaledY);
+});
+
+// Handle mouse clicks
+ipcMain.on('mouse-click', async (event, button) => {
+  exec(`powershell -command "$wshell = New-Object -ComObject WScript.Shell; $wshell.SendKeys('{LEFT}')"`);
+});
+
 
 // Handle setting the volume
 ipcMain.handle('set-volume', async (_, volume) => {
@@ -349,6 +367,22 @@ ipcMain.handle('decrease-volume', async () => {
         reject(error);
       } else {
         // console.log("Volume decreased by 10%");
+        resolve();
+      }
+    });
+  });
+});
+
+// Toggle mute/unmute with [char]173
+ipcMain.handle('toggle-mute', async () => {
+  return new Promise((resolve, reject) => {
+    const command = `powershell -Command "(New-Object -ComObject WScript.Shell).SendKeys([char]173)"`;
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error("Failed to toggle mute:", error, stderr);
+        reject(error);
+      } else {
+        console.log("Volume mute toggled");
         resolve();
       }
     });

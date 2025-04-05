@@ -1,7 +1,7 @@
 import '../App.css'
 import { LiaHandPaper } from "react-icons/lia";
 import { stopMediaAccess } from '../components/MeetingCard';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import OneRoom from "../../../OneRoom1.png"
 import { Mic, MicOff, Video, VideoOff, Volume2, VolumeOff, Plus, Minus  } from 'lucide-react';
 import { Slider } from "radix-ui";
@@ -48,6 +48,7 @@ function Controls() {
     await stopMediaAccess()
     setLoading(true)
     handleControl('leave')
+    resetStopwatch()
     setTimeout(() => {
       window.electronAPI.closeMeeting()
       setLoading(false)
@@ -61,6 +62,8 @@ function Controls() {
       setRoomName(customRoomName)
     }
 
+    startStopwatch()
+
   // Sync initial volume with system on mount
   window.electronAPI.getVolume().then((systemVolume: any) => {
     setVolume(systemVolume);
@@ -70,6 +73,42 @@ function Controls() {
 
   console.log("volume", volume)
 
+  const [time, setTime] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Start the stopwatch
+  const startStopwatch = () => {
+    if (!isRunning) {
+      setIsRunning(true);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      } 
+      // Prevent multiple intervals
+      intervalRef.current = setInterval(() => {
+        setTime((prevTime) => prevTime + 1000); // Increase by 1 second
+      }, 1000);
+    }
+  };
+
+  // Reset the stopwatch
+  const resetStopwatch = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    setTime(0);
+    setIsRunning(false);
+  };
+
+  // Format time
+  const formatTime = (ms: number) => {
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  };
+
   return (
     <div className="bg-container h-screen flex items-center flex-col select-none">
       <div className='w-full h-20 flex justify-between items-center px-5 py-2 mt-3'>
@@ -78,22 +117,22 @@ function Controls() {
         <img src={OneRoom} alt="OneRoom" className="h-20 w-30"/>
       </div>      
        <div className='w-full h-full flex flex-col items-center justify-center gap-4'>
-        <div className="w-1/3 h-36 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl" >
-          <div className="flex flex-col text-medium gap-5">
+        <div className="w-2/4 h-36 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl" >
+          <div className="flex flex-col text-medium gap-8">
             <h1 className="text-xl font-semibold mt-2">On Going Meeting</h1>
             <div>
               <h1 className="text-medium font-light">Meeting Controls</h1>
             </div>
           </div>
-          <div className="flex flex-col items-center text-center gap-7 mt-4">
-            <div className="w-10 h-3 flex justify-center items-center">
-              
+          <div className="flex flex-col items-center text-center gap-5 mt-4">
+            <div className="inline-flex items-center rounded-full border px-5 py-0.5 text-base font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-green-100 text-green-600">
+              {formatTime(time)}
             </div>
             <button disabled={loading} className={`px-6 py-2 rounded-2xl border-1 border-black-500 bg-red-600 hover:bg-red-500 border-none ${loading ? "opacity-50 cursor-not-allowed" : ""}`} onClick={handleCloseMeeting}>{loading === true ? "Loading": "Leave Meeting"}</button>
             {/* <Button text="Leave Meeting" size="md" color='red' onClick={handleCloseMeeting}/> */}
           </div>
         </div>
-        <div className='w-1/3 h-20 rounded-xl text-white flex gap-3'>
+        <div className='w-2/4 h-20 rounded-xl text-white flex gap-3'>
           <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() =>{ handleControl('mute'); setMute(!mute)}}>
             { mute === false ? <Mic size={'40px'}/> : <MicOff size={"40px"} /> }
           </div>
@@ -103,26 +142,30 @@ function Controls() {
           <div className={`${hand === false ? "bg-zinc-900 hover:bg-neutral-700": "bg-blue-500"} rounded-xl flex justify-center items-center w-1/3 h-20 `} onClick={() => {handleControl('hand'); setHand(!hand)}}>
             <LiaHandPaper size={'40px'}/>
           </div>
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => {setSpeaker(!speaker); window.electronAPI.toggleMute()}}>
+          {speaker === false ? <Volume2 size={"40px"}/>: <VolumeOff size={"40px"}/>}
+          </div>
         </div>
-        <div className=' h-10 rounded-xl w-1/3 text-white flex gap-2'>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-10'>
+        <div className=' h-15 rounded-xl w-2/4 text-white flex gap-2'>
+          {/* <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-15'>
             {speaker === false ? <Volume2 size={"30px"}/>: <VolumeOff size={"30px"}/>}
-          </div>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-10 hover:bg-neutral-700' onClick={increaseVolume}>
-            <Plus size={"30px"}/>
-          </div>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[55%] h-10 hover:bg-neutral-700'>
-          <SliderDemo
-          volume={volume}
-          setVolume={(val) => {
-            window.electronAPI.setVolume(val);
-            setVolume(val);
-            setSpeaker(val === 0);
-          }}
-        />
-          </div>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-10 hover:bg-neutral-700' onClick={decreaseVolume}>
+          </div> */}
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-15 hover:bg-neutral-700' onClick={decreaseVolume}>
             <Minus size={"30px"}/>
+          </div>
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[70%] h-15 hover:bg-neutral-700'>
+            <SliderDemo
+            volume={volume}
+            setVolume={(val) => {
+              window.electronAPI.setVolume(val);
+              setVolume(val);
+              setSpeaker(val === 0);
+            }}
+            />
+          </div>
+          
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-15 hover:bg-neutral-700' onClick={increaseVolume}>
+            <Plus size={"30px"}/>
           </div>
           
         </div>

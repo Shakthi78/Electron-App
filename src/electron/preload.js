@@ -21,4 +21,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getVolume: () => ipcRenderer.invoke('get-volume'),
   increaseVolume: () => ipcRenderer.invoke('increase-volume'),
   decreaseVolume: () => ipcRenderer.invoke('decrease-volume'),
+  moveMouse: (x, y) => ipcRenderer.send('move-mouse', x, y),
+  mouseClick: (button) => ipcRenderer.send('mouse-click', button),
+  toggleMute: () => ipcRenderer.invoke("toggle-mute"),
 })

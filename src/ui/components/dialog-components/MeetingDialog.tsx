@@ -8,7 +8,7 @@ import InstantMeeting from "./InstantMeeting"
 type MeetingType = "meet" | "zoom" | "webex" | "teams" | null
 type MeetOption = "join" | "instant" | null
 
-interface MeetingDialogProps {
+export interface MeetingDialogProps {
   onClose: () => void
 }
 

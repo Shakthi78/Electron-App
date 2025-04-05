@@ -10,21 +10,26 @@
     "build": "tsc -b && vite build && electron-builder",
     "lint": "eslint .",
     "preview": "vite preview",
-    "package": "electron-builder --win"
+    "package": "electron-builder --win",
+    "postinstall": "electron-rebuild -v 34.3.0"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.6",
     "@types/axios": "^0.9.36",
+    "@types/hammerjs": "^2.0.46",
     "axios": "^1.8.2",
     "framer-motion": "^12.4.7",
+    "hammerjs": "^2.0.8",
     "lucide-react": "^0.483.0",
     "network": "^0.7.0",
+    "node-global-key-listener": "^0.3.0",
     "os": "^0.1.2",
     "radix-ui": "^1.1.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.2.0",
+    "robotjs": "^0.6.0",
     "tailwindcss": "^4.0.6"
   },
   "devDependencies": {
@@ -54,7 +59,9 @@
       "dist/**/*",
       "!node_modules/**",
       "!**/*.map",
-      "src/electron/**/*"
+      "src/electron/**/*",
+      "node_modules/robotjs/**/*",
+      "node_modules/hammerjs/**/*"
     ],
     "extraResources": [
       "src/electron/assets/**"
