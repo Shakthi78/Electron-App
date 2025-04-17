@@ -3,9 +3,11 @@ import { LiaHandPaper } from "react-icons/lia";
 import { stopMediaAccess } from '../components/MeetingCard';
 import { useEffect, useRef, useState } from 'react';
 import OneRoom from "../../../OneRoom1.png"
-import { Mic, MicOff, Video, VideoOff, Volume2, VolumeOff, Plus, Minus  } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, Volume2, VolumeOff, Plus, Minus } from 'lucide-react';
 import { Slider } from "radix-ui";
-
+import { LuTouchpad } from 'react-icons/lu';
+import Touchpad from "../components/dialog-components/Touchpad"
+import { FaRegKeyboard } from 'react-icons/fa';
 
 
 function Controls() {
@@ -17,6 +19,8 @@ function Controls() {
 
   const [volume, setVolume] = useState(0);
   const [speaker, setSpeaker] = useState(false);
+
+  const [isTouch, setIsTouch] = useState(false)
 
   const increaseVolume = () => {
     window.electronAPI.increaseVolume();
@@ -35,9 +39,6 @@ function Controls() {
       return newVolume;
     });
   };
-
-
-
 
   const handleControl = (action: string) => {
     window.electronAPI.controlMeeting(action);
@@ -145,6 +146,9 @@ function Controls() {
           <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => {setSpeaker(!speaker); window.electronAPI.toggleMute()}}>
           {speaker === false ? <Volume2 size={"40px"}/>: <VolumeOff size={"40px"}/>}
           </div>
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={()=> window.electronAPI.openKeyboard()}>
+            <FaRegKeyboard size={"30px"}/>
+          </div>
         </div>
         <div className=' h-15 rounded-xl w-2/4 text-white flex gap-2'>
           {/* <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-15'>
@@ -153,7 +157,7 @@ function Controls() {
           <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-15 hover:bg-neutral-700' onClick={decreaseVolume}>
             <Minus size={"30px"}/>
           </div>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[70%] h-15 hover:bg-neutral-700'>
+          <div className='bg-zinc-900 rounded-xl flex p-6 items-center w-[50%] h-15 hover:bg-neutral-700'>
             <SliderDemo
             volume={volume}
             setVolume={(val) => {
@@ -166,6 +170,11 @@ function Controls() {
           
           <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-15 hover:bg-neutral-700' onClick={increaseVolume}>
             <Plus size={"30px"}/>
+          </div>
+          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[20%] h-15 hover:bg-neutral-700'>
+            {/* <Button icon={<LuTouchpad size={"30px"}/>} text="Touchpad" size="lg" color="black" onClick={() => setIsTouch(true)} /> */}
+            <LuTouchpad size={"30px"} onClick={() => setIsTouch(true)}/>
+            {isTouch && <Touchpad onClose={() => setIsTouch(false)} />}
           </div>
           
         </div>
@@ -194,7 +203,7 @@ const SliderDemo = ({ volume, setVolume }: VolumeType) => {
 
   return (
     <Slider.Root
-      className="relative flex h-5 w-[200px] touch-none select-none items-center"
+      className="relative flex h-5 w-full touch-none select-none items-center"
       value={[volume]}
       onValueChange={handleChange}
       max={100}

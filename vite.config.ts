@@ -6,6 +6,14 @@ export default defineConfig(async()=>{
   const tailwindcss = (await import('@tailwindcss/vite')).default;
   return {
     plugins: [react(), tailwindcss()],
-    base: './'
+    base: './',
+    build: {
+      rollupOptions: {
+        input: {
+          primary: "index.html", // Main entry point (default)
+          secondary: "secondary.html", // Additional entry
+        },
+      },
+    }
   }
 })

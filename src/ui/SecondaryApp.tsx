@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react"
-import Meetings from "../components/Meetings"
-import Button from "../components/Button"
-import Dialog from "../components/Dialog"
-import Sidebar from "../components/Sidebar"
+import Meetings from "./components/Meetings"
+import Button from "./components/Button"
+import Dialog from "./components/Dialog"
+import Sidebar from "./components/Sidebar"
 // import MeetingDialog from "../components/MeetingDialog"
-import OneRoom from "../../../OneRoom1.png"
+import OneRoom from "../../OneRoom1.png"
 // import { FaRegKeyboard } from "react-icons/fa";
 import { IoVideocamOutline } from "react-icons/io5"
 import { LuTouchpad } from "react-icons/lu";
-import MeetingDialog from "../components/dialog-components/MeetingDialog"
-import Touchpad from "../components/dialog-components/Touchpad"
+import MeetingDialog from "./components/dialog-components/MeetingDialog"
+import Touchpad from "./components/dialog-components/Touchpad"
+// import axios from "axios"
 
-const Home = () => {
+const SecondaryApp = () => {
   const [roomName, setRoomName] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isTouch, setIsTouch] = useState(false)
@@ -20,7 +21,7 @@ const Home = () => {
       minute: "2-digit",
       hour12: true,
     }))
-  
+
   useEffect(() => {
   const interval = setInterval(()=>{
       setTime(new Date().toLocaleTimeString([], {
@@ -29,6 +30,8 @@ const Home = () => {
       hour12: true,
       }))
   }, 60 * 1000)
+
+ 
 
   const customRoomName = localStorage.getItem("customRoomName")
 
@@ -86,9 +89,9 @@ const Home = () => {
   )
 }
 
-export default Home
+export default SecondaryApp
 
 export const handleCloseClick = async ()=>{
-    window.electronAPI.closeApp()
-    console.log("Hello above is the error")
-  }
+  window.electronAPI.closeApp()
+  console.log("Hello above is the error")
+}

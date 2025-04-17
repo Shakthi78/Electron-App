@@ -2,21 +2,25 @@ import { useEffect, useRef, useState } from 'react'
 import { MdClose } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
 import Button from './Button';
+import Password from './dialog-components/Password';
 // import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false)
     const dialogRef = useRef<HTMLDivElement>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
     // const navigate = useNavigate()
 
     const close = () => {
         setIsOpen(!isOpen)
     }
 
-    const handleNavigate = ()=>{
-      window.electronAPI.navigateTo("settings")
-      close()
-    }    
+    const handlePassword = ()=>{
+      setIsDialogOpen(true)
+    }
+
+       
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -47,12 +51,14 @@ const Sidebar = () => {
             <button className='px-4 py-2 text-xl hover:bg-neutral-700 cursor-pointer select-none'>
                 Home
             </button>
-            <button className='px-4 py-2 text-xl hover:bg-neutral-700 cursor-pointer select-none' onClick={handleNavigate}>
+            <button className='px-4 py-2 text-xl hover:bg-neutral-700 cursor-pointer select-none' onClick={handlePassword}>
                 Settings
             </button>
           </div>
         </div>}
     </div>
+    
+    {isDialogOpen && <Password onClose={()=>{setIsDialogOpen(false)}}/> }
     </>
   )
 }

@@ -4,6 +4,7 @@
       electronAPI: {
         closeApp: () => void;
         startMeeting: (url: string) => void;
+        teamsMeeting: (url: string, data: {}) => void;
         controlMeeting: (action: string) => void;
         closeMeeting: () => void;  // Ensure this is here
         navigateTo: (route) => void;

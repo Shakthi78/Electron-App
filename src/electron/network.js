@@ -10,14 +10,14 @@ const getNetworkInfo = () => {
                 console.log('No Wi-Fi detected or error:', err || stderr);
                 // Step 2: Fall back to Ethernet check
                 const interfaces = os.networkInterfaces();
-                console.log('Network interfaces:', interfaces);
+                // console.log('Network interfaces:', interfaces);
 
                 let ethernetFound = false;
                 for (const [name, nets] of Object.entries(interfaces)) {
                     if (nets) {
                         const activeNet = nets.find(net => net.family === 'IPv4' && !net.internal);
                         if (activeNet) {
-                            console.log('Ethernet detected:', name);
+                            // console.log('Ethernet detected:', name);
                             resolve({
                                 type: 'Ethernet',
                                 name: name // Use interface name (e.g., "Ethernet", "Local Area Connection")

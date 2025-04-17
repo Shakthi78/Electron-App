@@ -38,9 +38,9 @@ export default function MeetingDetails({ meetingType, onBack, close }: MeetingDe
         `https://meet1502.webex.com/meet1502/j.php?MTID=${meetingId.replace(/\s/g, "")}`
       );
     } else if (meetingType === "teams") {
-      window.electronAPI.startMeeting(
-        `https://teams.live.com/meet/${meetingId.replace(/\s/g, "")}?p=${password}`
-      );
+
+      window.electronAPI.teamsMeeting("https://www.microsoft.com/en-us/microsoft-teams/join-a-meeting", {meetingId, password})
+
     } else if (meetingType === "zoom") {
       let normalizedUrl = `https://app.zoom.us/wc/${meetingId.replace(/\s/g, "")}/join`;
       if (password) {
@@ -94,7 +94,7 @@ export default function MeetingDetails({ meetingType, onBack, close }: MeetingDe
               placeholder="Enter meeting ID"
             />
           </div>
-          <div>
+          {meetingType !== "meet" && <div>
             <label htmlFor="password" className="block text-sm font-medium text-white">
               Password
             </label>
@@ -107,7 +107,8 @@ export default function MeetingDetails({ meetingType, onBack, close }: MeetingDe
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               placeholder="Enter password"
             />
-          </div>
+          </div>}
+          
         </div>
       </div>
 

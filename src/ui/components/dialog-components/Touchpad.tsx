@@ -5,6 +5,14 @@ import { X } from "lucide-react";
 
 const VirtualTouchpad = ({ onClose }: MeetingDialogProps) => {
   const touchpadRef = useRef<HTMLDivElement>(null);
+  const lastPosition = useRef<{ x: number; y: number } | null>(null);
+
+  // Sensitivity settings
+  const TOUCHPAD_WIDTH = 320; // Width of the touchpad in pixels
+  const TOUCHPAD_HEIGHT = 320; // Height of the touchpad in pixels
+  const SCREEN_WIDTH = window.screen.width; // Screen width in pixels
+  const SCREEN_HEIGHT = window.screen.height; // Screen height in pixels
+  const SENSITIVITY_FACTOR = 1.0; // Adjust this value to match desired sensitivity (e.g., 0.8 for lower sensitivity)
 
   useEffect(() => {
     const touchpadElement = touchpadRef.current;
@@ -22,17 +30,25 @@ const VirtualTouchpad = ({ onClose }: MeetingDialogProps) => {
       const x = event.center.x - rect.left; // Relative X position
       const y = event.center.y - rect.top; // Relative Y position
 
-      // Send the updated position to the main process
-      window.electronAPI.moveMouse(x, y);
+      if (lastPosition.current) {
+        const deltaX = x - lastPosition.current.x; // Calculate relative X movement
+        const deltaY = y - lastPosition.current.y; // Calculate relative Y movement
+
+        // Scale the delta based on touchpad and screen dimensions
+        const scaledDeltaX = (deltaX * (SCREEN_WIDTH / TOUCHPAD_WIDTH)) * SENSITIVITY_FACTOR;
+        const scaledDeltaY = (deltaY * (SCREEN_HEIGHT / TOUCHPAD_HEIGHT)) * SENSITIVITY_FACTOR;
+
+        // Send the scaled and smoothed delta to the main process
+        window.electronAPI.moveMouse(scaledDeltaX, scaledDeltaY);
+      }
+
+      // Update the last position
+      lastPosition.current = { x, y };
     });
 
-    // Handle pinch gestures (zoom in/out)
-    hammer.on('pinch', (event) => {
-      if (event.scale > 1) {
-        console.log('Pinch out (zoom in)');
-      } else {
-        console.log('Pinch in (zoom out)');
-      }
+    // Reset last position when the gesture ends
+    hammer.on('panend', () => {
+      lastPosition.current = null;
     });
 
     // Handle tap (left click)
@@ -71,6 +87,7 @@ const VirtualTouchpad = ({ onClose }: MeetingDialogProps) => {
             >
               {/* Touchpad Area */}
             </div>
+
             <div className="mt-4 flex gap-4">
               {/* Left Click Button */}
               <button
@@ -89,6 +106,7 @@ const VirtualTouchpad = ({ onClose }: MeetingDialogProps) => {
               </button>
             </div>
           </div>
+          
         </div>
       </div>
     </div>

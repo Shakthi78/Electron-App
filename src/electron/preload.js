@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron/renderer')
 contextBridge.exposeInMainWorld('electronAPI', {
   closeApp: () => ipcRenderer.send('close-windows'),
   startMeeting: (url) => ipcRenderer.send('start-meeting', url),
+  teamsMeeting: (url, data) => ipcRenderer.send('teams-meeting', url, data),
   controlMeeting: (action) => ipcRenderer.send('meeting-control', action),
   closeMeeting: () => ipcRenderer.send('close-meeting'),
   navigateTo: (route) => ipcRenderer.send("navigate-to", route),
@@ -21,7 +22,38 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getVolume: () => ipcRenderer.invoke('get-volume'),
   increaseVolume: () => ipcRenderer.invoke('increase-volume'),
   decreaseVolume: () => ipcRenderer.invoke('decrease-volume'),
-  moveMouse: (x, y) => ipcRenderer.send('move-mouse', x, y),
-  mouseClick: (button) => ipcRenderer.send('mouse-click', button),
+  moveMouse: (x, y) => ipcRenderer.invoke('move-mouse', x, y),
+  mouseClick: (button) => ipcRenderer.invoke('mouse-click', button),
   toggleMute: () => ipcRenderer.invoke("toggle-mute"),
 })
+
+ipcRenderer.on('fill-meeting-details', (event, { meetingId, passcode }) => {
+  // Wait for the DOM to fully load and inputs to appear
+  const tryInject = () => {
+    // Find inputs by their labels or structure
+    const inputs = document.querySelectorAll('.form-row input');
+    if (inputs.length < 2) {
+      console.log("Waiting for inputs to load...");
+      return setTimeout(tryInject, 500);
+    }
+
+    const [meetingIdInput, passcodeInput] = inputs;
+
+    meetingIdInput.value = meetingId;
+    passcodeInput.value = passcode;
+
+    // Fire events to simulate user input
+    meetingIdInput.dispatchEvent(new Event('input', { bubbles: true }));
+    passcodeInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+    // Optionally, submit the form
+    const joinBtn = document.querySelector('button[type="submit"]');
+    if (joinBtn) {
+      setTimeout(() => joinBtn.click(), 500); // slight delay to simulate natural interaction
+    } else {
+      console.warn('Join button not found');
+    }
+  };
+
+  tryInject();
+});

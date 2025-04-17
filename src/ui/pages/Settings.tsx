@@ -55,14 +55,7 @@ const Settings = () => {
       await axios.post("https://exceleed.in/api/v1/watch/create", {
         email: userData
       })
-      await axios.get("https://exceleed.in/api/v1/calendar/push-meetings/", {
-        headers: {
-          "email": userData,
-          "Content-Type": "application/json",
-        }
-      })
     };
-  
 
     window.electronAPI.onUserEmail(handleUserEmail);
 
@@ -85,6 +78,17 @@ const Settings = () => {
       
   }, []);
 
+  const fetchMeeting = async(email: string)=>{
+    await axios.post("https://exceleed.in/api/v1/calendar/push-meetings/",{
+      roomName: selectedRoom
+    },  {
+      headers: {
+        "email": email,
+        "Content-Type": "application/json",
+      }
+    })
+  }
+
   const fetchRooms = async (email: string) => {
     const response: any = await axios.get("https://exceleed.in/api/v1/calendar/building-resources", {
       headers: {
@@ -98,8 +102,16 @@ const Settings = () => {
   console.log("Rooms", rooms)
 
   const saveClose = ()=>{
-    window.electronAPI.navigateTo("/")
     localStorage.setItem("room", selectedRoom)
+    const previousRoomName = localStorage.getItem("previousRoomName")
+    console.log("previousRoomName", previousRoomName)
+    if(selectedRoom !== "" && previousRoomName !== selectedRoom){
+      localStorage.setItem("previousRoomName", selectedRoom)
+      const email = localStorage.getItem('userEmail') as string;
+      fetchMeeting(email)
+      console.log("Fetching the meeting")
+    }
+    window.electronAPI.navigateTo("/")
   }
 
   const handleSubmit = (e: any) => {

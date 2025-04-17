@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, ipcMain, session, ipcRenderer } = require('electron') 
+const { app, BrowserWindow, screen, ipcMain, session, ipcRenderer, Menu } = require('electron') 
 const path = require('node:path');
 const injectMeetingControls = require('./meeting-preload');
 const getNetworkInfo = require('./network');
@@ -115,7 +115,7 @@ const createMeetingWindow = (display, url) => {
         if (pwd) {
             normalizedUrl += `?pwd=${encodeURIComponent(pwd)}`;
         }
-    } else if (url.includes('teams.microsoft.com') || url.includes('teams.live.com')) {
+    } else if (url.includes('teams.microsoft.com') || url.includes('teams.live.com') || url.includes("microsoft")) {
         normalizedUrl = url; // Teams doesn’t need normalization
     }
 
@@ -130,6 +130,7 @@ const createMeetingWindow = (display, url) => {
           nodeIntegration: false,
           contextIsolation: true, 
           devTools: true,
+          preload: path.join(app.getAppPath(), '/src/electron/preload.js'),
           partition: 'persist:meetings',
         },
     });
@@ -289,7 +290,7 @@ app.whenReady().then(async() => {
 
     // Open window on the secondary display (if available)
     if (secondaryDisplay) {
-        secondaryWindow = createWindow(secondaryDisplay, path.join(app.getAppPath(), '/dist/index.html'));
+        secondaryWindow = createWindow(secondaryDisplay, path.join(app.getAppPath(), '/dist/secondary.html'));
     } else {
         console.log("No secondary display detected.");
     }
@@ -297,20 +298,36 @@ app.whenReady().then(async() => {
 
 // IPC handlers
 // Handle moving the mouse
-ipcMain.on('move-mouse', (_, x, y) => {
-  const screenWidth = robot.getScreenSize().width;
-  const screenHeight = robot.getScreenSize().height;
+ipcMain.handle('move-mouse', (_, deltaX, deltaY) => {
+  // Get the current mouse position
+  const { x: currentX, y: currentY } = robot.getMousePos();
 
-  // Scale touchpad coordinates to screen resolution
-  const scaledX = Math.round((x / 320) * screenWidth); // Assuming touchpad width is 320px
-  const scaledY = Math.round((y / 320) * screenHeight); // Assuming touchpad height is 320px
+  // Calculate the new position by adding the delta
+  const newX = currentX + deltaX;
+  const newY = currentY + deltaY;
 
-  robot.moveMouse(scaledX, scaledY);
+  // Move the mouse to the new position
+  robot.moveMouse(newX, newY);
 });
 
 // Handle mouse clicks
-ipcMain.on('mouse-click', async (event, button) => {
-  exec(`powershell -command "$wshell = New-Object -ComObject WScript.Shell; $wshell.SendKeys('{LEFT}')"`);
+ipcMain.handle('mouse-click', async (_, button) => {
+  console.log(`Mouse click received: ${button}`);
+  try {
+    if (button === 'left') {
+      setTimeout(() => {
+        console.log('Simulating left');
+        robot.mouseClick('left');
+      }, 500);
+    } else if (button === 'right') {
+      setTimeout(() => {
+        console.log('Simulating right click');
+        robot.mouseClick('right');
+      }, 500);
+    }
+  } catch (error) {
+    console.error('Error simulating mouse click:', error);
+  }
 });
 
 
@@ -334,7 +351,7 @@ ipcMain.handle('set-volume', async (_, volume) => {
 // Handle getting the volume
 ipcMain.handle('get-volume', async () => {
   return new Promise((resolve, reject) => {
-    console.log("nircmdPath", nircmdPath)
+    // console.log("nircmdPath", nircmdPath)
     exec(`powershell -command "Write-Output (New-Object -ComObject WMPlayer.OCX.7).settings.volume"`, (error, stdout) => {
       if (error) reject(error);
       else resolve(parseInt(stdout) || 50);
@@ -425,7 +442,21 @@ ipcMain.on('navigate-to', (event, route)=>{
 
 ipcMain.on('start-meeting', (event, url)=>{
     if(primaryWindow){
+      meetingWindow = createMeetingWindow(primaryDisplay, url)
+    }
+    if(secondaryWindow){
+        loadRouteInWindow(secondaryWindow, 'controls')
+    }
+})
+
+ipcMain.on('teams-meeting', (event, url, data)=>{
+    if(primaryWindow){
         meetingWindow = createMeetingWindow(primaryDisplay, url)
+        console.log("data", data)
+        meetingWindow.webContents.send('fill-meeting-details', {
+          meetingId: data.meetingId,
+          passcode: data.password
+        });
     }
     if(secondaryWindow){
         loadRouteInWindow(secondaryWindow, 'controls')
@@ -440,7 +471,7 @@ ipcMain.on('close-meeting', ()=>{
                 console.log("ksndkcnajknasn")
                 meetingWindow.close()
             }else{
-                console.log("ksndkcnajknasn")
+                console.log("quwbqabixa")
             } 
         } catch (error) {
             console.log("error in close meeting")

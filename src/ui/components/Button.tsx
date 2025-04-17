@@ -1,5 +1,5 @@
 interface ButtonProps {
-    text: string;
+    text?: string;
     size: "sm" | "md" | "lg";
     reference?: React.Ref<HTMLButtonElement>;
     onClick?: () => void;
