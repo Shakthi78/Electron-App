@@ -1,7 +1,7 @@
 {
   "name": "electron-course",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "src/electron/main.js",
   "scripts": {
     "dev:react": "vite",
@@ -52,7 +52,7 @@
   },
   "build": {
     "appId": "com.example.electroncourse",
-    "productName": "ElectronCourseApp",
+    "productName": "OneRoom",
     "asar": true,
     "compression": "maximum",
     "files": [

@@ -97,7 +97,7 @@ const createWindow = (display, htmlPath) => {
     return win;
 }
 
-const createMeetingWindow = (display, url) => {
+const createMeetingWindow = (display, url, value) => {
     const { x, y, width, height } = display.bounds;
 
     let normalizedUrl = url;
@@ -119,7 +119,9 @@ const createMeetingWindow = (display, url) => {
         normalizedUrl = url; // Teams doesn’t need normalization
     }
 
-    let win = new BrowserWindow({
+    let win;
+    if(value === true){
+       win = new BrowserWindow({
         x,
         y,
         width, // Adjust the size as needed
@@ -133,8 +135,26 @@ const createMeetingWindow = (display, url) => {
           preload: path.join(app.getAppPath(), '/src/electron/preload.js'),
           partition: 'persist:meetings',
         },
-    });
-
+      });
+    }
+    else{
+      win = new BrowserWindow({
+        x,
+        y,
+        width, // Adjust the size as needed
+        height,
+        frame: true,
+        autoHideMenuBar: true,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true, 
+          devTools: true,
+          preload: path.join(app.getAppPath(), '/src/electron/preload.js'),
+          partition: 'persist:meetings',
+        },
+      }); 
+    }
+    
     win.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
       console.log(`Permission requested: ${permission}`);
       if (permission === "display-capture" || permission === 'media' || permission === 'camera' || permission === 'microphone' || permission === 'display-media') {
@@ -270,9 +290,13 @@ const createAuthWindow = (display, url)=>{
 
 
 const loadRouteInWindow = (window, route) => {
-    if (window) {
-        const filePath = path.join(app.getAppPath(), '/dist/index.html');
-        window.loadFile(filePath, { hash: route });
+    if(window === secondaryWindow){
+      const filePath = path.join(app.getAppPath(), '/dist/secondary.html');
+      window.loadFile(filePath, { hash: route });
+    }
+    else if (window) {
+      const filePath = path.join(app.getAppPath(), '/dist/index.html');
+      window.loadFile(filePath, { hash: route });
     }
 };
 
@@ -441,12 +465,19 @@ ipcMain.on('navigate-to', (event, route)=>{
 //Listen for start-meeting events from frontend
 
 ipcMain.on('start-meeting', (event, url)=>{
+  let value = false;
     if(primaryWindow){
-      meetingWindow = createMeetingWindow(primaryDisplay, url)
-    }
-    if(secondaryWindow){
+      if(secondaryWindow){
+        value = true
+        meetingWindow = createMeetingWindow(primaryDisplay, url, value)
         loadRouteInWindow(secondaryWindow, 'controls')
+      }else{
+        meetingWindow = createMeetingWindow(primaryDisplay, url, value)
+      }
     }
+    // if(secondaryWindow){
+    //     loadRouteInWindow(secondaryWindow, 'controls')
+    // }
 })
 
 ipcMain.on('teams-meeting', (event, url, data)=>{
@@ -463,7 +494,7 @@ ipcMain.on('teams-meeting', (event, url, data)=>{
     }
 })
 
-ipcMain.on('close-meeting', ()=>{
+ipcMain.on('close-meeting', () => {
     if(secondaryWindow){
         loadRouteInWindow(secondaryWindow, '/')
         try {

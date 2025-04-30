@@ -78,7 +78,7 @@ export default function MeetingDetails({ meetingType, onBack, close }: MeetingDe
         <h2 className="flex-1 text-center text-2xl font-bold">{getPlatformName()} Details</h2>
       </div>
 
-      <div className="w-full max-w-lg space-y-4 rounded-lg bg-neutral-800 p-6 shadow-md">
+      <div className="w-full max-w-lg space-y-4 rounded-xl bg-black/10 backdrop-blur-lg text-white border border-white/10 transition-all p-6 shadow-md">
         <div className="space-y-4 ">
           <div>
             <label htmlFor="meetingId" className="block text-sm font-medium text-white">
@@ -90,7 +90,7 @@ export default function MeetingDetails({ meetingType, onBack, close }: MeetingDe
               value={meetingId}
               onChange={(e) => setMeetingId(e.target.value)}
               onFocus={() => setActiveInput("meetingId")}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary text-white"
               placeholder="Enter meeting ID"
             />
           </div>

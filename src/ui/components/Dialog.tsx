@@ -86,7 +86,7 @@ export default function Dialog({handleClose}: Close) {
               transformOrigin: "top left",
               zIndex: 1000, // Ensure it appears above other elements
             }}
-            className="w-60 bg-black text-white rounded-lg shadow-lg p-4 "
+            className="w-60 bg-black/50 backdrop-blur-sm rounded-lg text-white border border-white/10 transition-all p-4 ml-15"
           >
             <div className="flex justify-between items-center mb-4">
               {/* <h3 className="text-lg font-semibold">Are you sure you want to close the application?</h3> */}
@@ -98,7 +98,7 @@ export default function Dialog({handleClose}: Close) {
             Are you sure you want to close the application?
             </p>
             <div className="flex justify-center gap-2">
-              <Button size="md" text={"Cancel"} onClick={handleCloseDialog}/>
+              <Button size="md" text="Cancel" color="black" onClick={handleCloseDialog}/>
               <Button color="red" size="md" text={"Leave"} onClick={handleClose}/>
             </div>
           </motion.div>

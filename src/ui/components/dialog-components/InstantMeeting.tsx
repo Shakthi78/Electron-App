@@ -31,7 +31,7 @@ export default function InstantMeeting({ onBack, close }: InstantMeetingProps) {
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-xl font-medium">Ready to start your meeting?</h3>
+          <h3 className="text-xl font-medium text-white">Ready to start your meeting?</h3>
           <p className="text-gray-500">Your instant meeting will be created and you can invite others to join.</p>
         </div>
 

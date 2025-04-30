@@ -2,16 +2,19 @@ import '../App.css'
 import { LiaHandPaper } from "react-icons/lia";
 import { stopMediaAccess } from '../components/MeetingCard';
 import { useEffect, useRef, useState } from 'react';
-import OneRoom from "../../../OneRoom1.png"
-import { Mic, MicOff, Video, VideoOff, Volume2, VolumeOff, Plus, Minus } from 'lucide-react';
+// import OneRoom from "../../../OneRoom1.png"
+import { Mic, MicOff, Video, VideoOff, Volume2, VolumeOff, Plus, Minus, Tablet } from 'lucide-react';
 import { Slider } from "radix-ui";
-import { LuTouchpad } from 'react-icons/lu';
+// import { LuTouchpad } from 'react-icons/lu';
 import Touchpad from "../components/dialog-components/Touchpad"
 import { FaRegKeyboard } from 'react-icons/fa';
+import AnimatedBackground from '../components/AnimatedBackground';
+import RoomInfo from '../components/RoomInfo';
 
 
 function Controls() {
   const [roomName, setRoomName] = useState("")
+  const [capacity, setCapacity] = useState("")
   const [mute, setMute] = useState<boolean>(false)
   const [video, setVideo] = useState<boolean>(false)
   const [hand, setHand] = useState<boolean>(false)
@@ -53,14 +56,18 @@ function Controls() {
     setTimeout(() => {
       window.electronAPI.closeMeeting()
       setLoading(false)
-    }, 5000);
+    }, 3000);
   }
 
   useEffect(()=>{
-    const customRoomName = localStorage.getItem("customRoomName")
+    const customRoomName = localStorage.getItem("RoomName")
+    const Capacity = localStorage.getItem("Capacity")
 
     if(customRoomName){
       setRoomName(customRoomName)
+    }
+    if(Capacity){
+      setCapacity(Capacity)
     }
 
     startStopwatch()
@@ -112,20 +119,27 @@ function Controls() {
 
   return (
     <div className="bg-container h-screen flex items-center flex-col select-none">
+      <AnimatedBackground/>
+
       <div className='w-full h-20 flex justify-between items-center px-5 py-2 mt-3'>
-        <h2 className="text-xl font-semibold select-none"><p className="text-sm">Room</p> {roomName}</h2>
-        <h2></h2>
-        <img src={OneRoom} alt="OneRoom" className="h-20 w-30"/>
+        <RoomInfo 
+            roomName={roomName} 
+            capacity={capacity}
+          />
+        <div className="text-white text-2xl ">
+        <span className="text-blue-300">one</span>
+        <span className="text-blue-100">room</span>
+      </div>
       </div>      
-       <div className='w-full h-full flex flex-col items-center justify-center gap-4'>
-        <div className="w-2/4 h-36 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl" >
+       <div className='w-full h-full flex flex-col items-center justify-center gap-4 '>
+        <div className="w-2/4 h-36 rounded-2xl flex justify-between p-4 bg-black/50 backdrop-blur-sm hover:bg-black/70 text-white border border-white/10 transition-all" >
           <div className="flex flex-col text-medium gap-8">
             <h1 className="text-xl font-semibold mt-2">On Going Meeting</h1>
             <div>
               <h1 className="text-medium font-light">Meeting Controls</h1>
             </div>
           </div>
-          <div className="flex flex-col items-center text-center gap-5 mt-4">
+          <div className="flex flex-col items-center text-center gap-5 mt-4 ">
             <div className="inline-flex items-center rounded-full border px-5 py-0.5 text-base font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-green-100 text-green-600">
               {formatTime(time)}
             </div>
@@ -134,19 +148,19 @@ function Controls() {
           </div>
         </div>
         <div className='w-2/4 h-20 rounded-xl text-white flex gap-3'>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() =>{ handleControl('mute'); setMute(!mute)}}>
+          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-1/3 h-20' onClick={() =>{ handleControl('mute'); setMute(!mute)}}>
             { mute === false ? <Mic size={'40px'}/> : <MicOff size={"40px"} /> }
           </div>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => {handleControl('video'); setVideo(!video)}}>
+          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-1/3 h-20' onClick={() => {handleControl('video'); setVideo(!video)}}>
             { video === false ? <Video size={'40px'}/>: <VideoOff size={'40px'}/>}
           </div>
-          <div className={`${hand === false ? "bg-zinc-900 hover:bg-neutral-700": "bg-blue-500"} rounded-xl flex justify-center items-center w-1/3 h-20 `} onClick={() => {handleControl('hand'); setHand(!hand)}}>
+          <div className={`${hand === false ? "bg-black/50 backdrop-blur-sm hover:bg-black/70 text-white border border-white/10 transition-all": "bg-blue-500"} rounded-xl flex justify-center items-center w-1/3 h-20 `} onClick={() => {handleControl('hand'); setHand(!hand)}}>
             <LiaHandPaper size={'40px'}/>
           </div>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={() => {setSpeaker(!speaker); window.electronAPI.toggleMute()}}>
+          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-1/3 h-20' onClick={() => {setSpeaker(!speaker); window.electronAPI.toggleMute()}}>
           {speaker === false ? <Volume2 size={"40px"}/>: <VolumeOff size={"40px"}/>}
           </div>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-1/3 h-20 hover:bg-neutral-700' onClick={()=> window.electronAPI.openKeyboard()}>
+          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-1/3 h-20' onClick={()=> window.electronAPI.openKeyboard()}>
             <FaRegKeyboard size={"30px"}/>
           </div>
         </div>
@@ -154,10 +168,10 @@ function Controls() {
           {/* <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-15'>
             {speaker === false ? <Volume2 size={"30px"}/>: <VolumeOff size={"30px"}/>}
           </div> */}
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-15 hover:bg-neutral-700' onClick={decreaseVolume}>
+          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-[15%] h-15 ' onClick={decreaseVolume}>
             <Minus size={"30px"}/>
           </div>
-          <div className='bg-zinc-900 rounded-xl flex p-6 items-center w-[50%] h-15 hover:bg-neutral-700'>
+          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex p-6 items-center w-[50%] h-15'>
             <SliderDemo
             volume={volume}
             setVolume={(val) => {
@@ -168,15 +182,14 @@ function Controls() {
             />
           </div>
           
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-15 hover:bg-neutral-700' onClick={increaseVolume}>
+          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-[15%] h-15 ' onClick={increaseVolume}>
             <Plus size={"30px"}/>
           </div>
-          <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[20%] h-15 hover:bg-neutral-700'>
+          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-[20%] h-15 ' onClick={() => setIsTouch(true)}>
             {/* <Button icon={<LuTouchpad size={"30px"}/>} text="Touchpad" size="lg" color="black" onClick={() => setIsTouch(true)} /> */}
-            <LuTouchpad size={"30px"} onClick={() => setIsTouch(true)}/>
-            {isTouch && <Touchpad onClose={() => setIsTouch(false)} />}
+            <Tablet size={24} />
           </div>
-          
+            {isTouch && <Touchpad onClose={() => setIsTouch(false)} />}  
         </div>
       </div>     
       <div className='w-full h-10 flex justify-start px-5 hover:cursor-pointer'>

@@ -1,6 +1,6 @@
 import { X } from "lucide-react"
 import { MeetingDialogProps } from "./MeetingDialog"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Button from "../Button"
 
 const Password = ({onClose}: MeetingDialogProps) => {
@@ -18,8 +18,19 @@ const Password = ({onClose}: MeetingDialogProps) => {
             setValue("")
             console.log("Wrong password")
         }
-        
     }
+
+    useEffect(() => {
+      const handleKeyDown = (event: any) => {
+        if (event.key === 'Enter') {
+          document.getElementById('my-button')?.click();
+        }
+      };
+  
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [])
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
       <div className="relative h-full w-full max-w-7xl overflow-hidden p-4 md:p-6 flex justify-center items-center">
@@ -36,10 +47,10 @@ const Password = ({onClose}: MeetingDialogProps) => {
               type="text"
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none text-white"
               placeholder="Enter Password"
             />
-            <Button text="Enter" size="md" onClick={handleNavigate}/>
+            <Button id="my-button" text="Enter" size="md" color="blue" onClick={handleNavigate}/>
             {isWrong && <p className="text-red-600 font-medium">Wrong password</p>}
         </div>
       </div>

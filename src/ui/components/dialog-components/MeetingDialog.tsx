@@ -27,7 +27,7 @@ export default function MeetingDialog({ onClose }: MeetingDialogProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl border border-white/10 shadow-xl text-white">
       <div className="relative h-full w-full max-w-7xl overflow-hidden p-4 md:p-6">
         <button
           onClick={onClose}

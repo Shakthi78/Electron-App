@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { MdClose } from "react-icons/md";
 import { IoSettingsOutline } from "react-icons/io5";
-import Button from './Button';
 import Password from './dialog-components/Password';
+import QuickAction from './QuickAction';
 // import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -18,6 +18,7 @@ const Sidebar = () => {
 
     const handlePassword = ()=>{
       setIsDialogOpen(true)
+      close()
     }
 
        
@@ -40,10 +41,10 @@ const Sidebar = () => {
 
   return (
     <>
-    <Button icon={<IoSettingsOutline size="30px"/>}  text="Settings" size='lg' color='black' onClick={close}/>
+    <QuickAction label={"Settings"} icon={<IoSettingsOutline size={24}/>} onClick={close} />
     <div ref={dialogRef}>
         {/* <BsThreeDots className='text-4xl' onClick={close}/> */}
-        {isOpen && <div className='flex flex-col h-screen bg-black absolute top-0 left-0 text-white gap-3 w-48'>
+        {isOpen && <div className='flex flex-col h-screen bg-black absolute top-0 left-0 text-white gap-3 w-48 z-100'>
           <div className='flex justify-end m-4' >
             <MdClose fontSize={'25px'} onClick={close}/>
           </div>

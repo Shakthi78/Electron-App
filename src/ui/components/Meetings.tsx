@@ -75,32 +75,29 @@ const Meetings = () => {
     }, []);
     
   return (
-    <div className="relative w-1/3 h-96 mt-5 overflow-y-scroll flex flex-col gap-2 custom-scrollbar mask-gradient pt-4">
+    // <div className="relative w-1/3 h-96 mt-5 overflow-y-scroll flex flex-col gap-2 custom-scrollbar mask-gradient pt-4">
+    <>    
+      <div className={`flex flex-col w-lg gap-2 mask-gradient custom-scrollbar overflow-y-scroll h-full xl:max-h-[20rem] 2xl:max-h-[35rem]`}>
         {meetings.map((item, i)=>(
           <MeetingCard key={i} {...item}/>
         ))}
-
+    
         {meetings.length === 0 && (
-          <div className="w-full h-40 rounded-2xl flex justify-between p-4 bg-zinc-900 text-white shadow-xl mt-2 select-none" >
-            <div className="flex flex-col text-medium gap-5">
-              <h1 className="text-xl font-semibold mt-5">No Meeting</h1>
-              <div className="mt-2">
-                <div className="flex gap-3">
-                  
-                </div>
-                <h1 className="text-medium font-light pl-1">None</h1>
-              </div>
-              
+          <div className="bg-black/30 backdrop-blur-md rounded-xl p-6 text-white shadow-lg border border-white/10 w-full max-w-lg mb-2">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="h-3 w-3 rounded-full bg-green-500"></div>
+              <h2 className="text-xl font-semibold">Room Available</h2>
             </div>
-            <div className="flex flex-col items-center text-center gap-7 mt-4">
-              <div className="w-10 h-3 flex justify-center items-center">
-                
-              </div>
+            
+            <div className="py-6 text-center">
+              <h3 className="text-2xl font-bold mb-2">No Upcoming Meetings</h3>
+              <p className="text-gray-300">This room is free for the rest of the day</p>
             </div>
-          </div>
-        )}
-          
         </div>
+        )}
+      </div>
+    </>
+  // </div>
   )
 }
 

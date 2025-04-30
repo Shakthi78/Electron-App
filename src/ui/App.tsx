@@ -8,7 +8,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path='/' element={<Home/>}/>
+        <Route path='/' element={<Home worldClock={true}/>}/>
         <Route path='/settings' element={<Settings/>}/>
         <Route path='/controls' element={<Controls/>}/>
       </Routes>

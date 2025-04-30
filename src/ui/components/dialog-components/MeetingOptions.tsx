@@ -31,9 +31,9 @@ export default function MeetingOptions({ onSelect }: MeetingOptionsProps) {
       <h2 className="mb-8 text-center text-2xl font-bold">Select Meeting Platform</h2>
       <div className="grid w-full max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
         {options.map((option) => (
-          <div className="dialog-body">
+          <div className="">
             <div
-              className={`platform-option ${selectedPlatform === option.id ? "selected" : ""}`}
+              className={`bg-black/50 backdrop-blur-lg hover:bg-neutral-900  text-white border border-white/10 transition-all flex flex-col justify-center items-center p-2 rounded-xl cursor-pointer ${selectedPlatform === option.id ? "selected" : ""}`}
               onClick={() => {option.id === "meet" ? handleMeetSelect() : onSelect(option.id as any); setSelectedPlatform(option.id)}}
             >
               <div className="platform-icon">
