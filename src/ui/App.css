@@ -251,26 +251,6 @@
   animation: wave 10s linear infinite;
 }
 
-/* Fullscreen-specific styles */
-/* :fullscreen .fixed {
-  position: fixed;
-  inset: 0;
-} */
-
-/* :fullscreen .w-[200vw] {
-  width: 200vw;
-}
-:fullscreen .h-[200vh] {
-  height: 200vh;
-}
-:fullscreen .top-[-50vh] {
-  top: -50vh;
-}
-:fullscreen .left-[-50vw] {
-  left: -50vw;
-} */
-
-
 @keyframes gradient-transition {
   0% {
     background-position: 0% 50%; 

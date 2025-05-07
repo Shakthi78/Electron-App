@@ -193,11 +193,13 @@ const createMeetingWindow = (display, url, value) => {
 
     win.on('closed', () => {
       win = null;
+      setTimeout(() => {
+        primaryWindow.focus(); // Keep a reference to it when created
+      }, 500);
     });
 
     win.loadURL(normalizedUrl) 
     win.maximize()
-    
     return win;
 }
 
@@ -481,17 +483,37 @@ ipcMain.on('start-meeting', (event, url)=>{
 })
 
 ipcMain.on('teams-meeting', (event, url, data)=>{
+    // if(primaryWindow){
+    //     meetingWindow = createMeetingWindow(primaryDisplay, url)
+    //     console.log("data", data)
+    //     meetingWindow.webContents.send('fill-meeting-details', {
+    //       meetingId: data.meetingId,
+    //       passcode: data.password
+    //     });
+    // }
+    // if(secondaryWindow){
+    //     loadRouteInWindow(secondaryWindow, 'controls')
+    // }
+    let value = false;
     if(primaryWindow){
-        meetingWindow = createMeetingWindow(primaryDisplay, url)
-        console.log("data", data)
+
+      if(secondaryWindow){
+        value = true
+        meetingWindow = createMeetingWindow(primaryDisplay, url, value)
         meetingWindow.webContents.send('fill-meeting-details', {
           meetingId: data.meetingId,
           passcode: data.password
         });
-    }
-    if(secondaryWindow){
         loadRouteInWindow(secondaryWindow, 'controls')
+      }else{
+        meetingWindow = createMeetingWindow(primaryDisplay, url, value)
+        meetingWindow.webContents.send('fill-meeting-details', {
+          meetingId: data.meetingId,
+          passcode: data.password
+        });
+      }
     }
+    
 })
 
 ipcMain.on('close-meeting', () => {

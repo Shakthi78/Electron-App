@@ -12,6 +12,7 @@ import Touchpad from "../components/dialog-components/Touchpad"
 import { Tablet, Video } from "lucide-react"
 import QuickAction from "../components/QuickAction"
 import { timeZones } from "../data/timezones"
+import { DeviceAlerts } from '../components/alert-components/DeviceAlerts'
 
 const Home = ({worldClock}: {worldClock: boolean}) => {
   const [roomName, setRoomName] = useState("")
@@ -66,6 +67,7 @@ const Home = ({worldClock}: {worldClock: boolean}) => {
           />
           
           <TimeDisplay/>
+          <DeviceAlerts />
         </div>
         
         <div className="flex-grow flex gap-24 justify-center items-center">

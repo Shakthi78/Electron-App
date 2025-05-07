@@ -2,6 +2,9 @@
   declare global {
     interface Window {
       electronAPI: {
+        ipcRenderer: {
+          send: any
+        }
         closeApp: () => void;
         startMeeting: (url: string) => void;
         teamsMeeting: (url: string, data: {}) => void;
