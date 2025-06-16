@@ -1,13 +1,13 @@
 {
   "name": "electron-course",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "src/electron/main.js",
   "scripts": {
     "dev:react": "vite",
     "dev:electron": "electron .",
-    "build:react": "tsc -b && vite build",
-    "build": "tsc -b && vite build && electron-builder",
+    "build:react": "vite build",
+    "build": "vite build && electron-builder",
     "lint": "eslint .",
     "preview": "vite preview",
     "package": "electron-builder --win",

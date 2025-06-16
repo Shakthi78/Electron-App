@@ -11,28 +11,50 @@ let media: MediaStream | undefined | null;
 
 const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, meetingLink}) => {
   const [logo, setLogo] = useState<string>("")
-
+  const [canStart, setCanStart] = useState<boolean>(false);
+  
   const handleClick = async() => {
     media = await requestMediaAccess()
     window.electronAPI.startMeeting(meetingLink);
     console.log("Meeting has started")
   }
-
+  
   useEffect(() => {
-    if(meetingLink?.includes('zoom')){
-      setLogo("zoom")
-    }
-    else if(meetingLink?.includes('teams')){
-      setLogo("teams")
-    }
-    else if(meetingLink?.includes('google')){
-      setLogo("google")
-    }
-    else if(meetingLink?.includes('webex')){
-      setLogo("webex")
-      console.log("webx")
-    }
-  }, [])
+   if (meetingLink && meetingLink !== "No meeting link") {
+    if (meetingLink.includes("zoom")) setLogo("zoom");
+    else if (meetingLink.includes("teams")) setLogo("teams");
+    else if (meetingLink.includes("google")) setLogo("google");
+    else if (meetingLink.includes("webex")) setLogo("webex");
+    else setLogo("");
+  } else {
+    setLogo("");
+  }
+
+  const checkStartTime = () => {
+    const now = new Date();
+
+    const parseTime = (timeStr: string): Date => {
+      const [clock, modifier] = timeStr.split(" ");
+      const [hourStr, minuteStr] = clock.split(":");
+      let hour = parseInt(hourStr, 10);
+      const minute = parseInt(minuteStr, 10);
+      if (modifier === "PM" && hour !== 12) hour += 12;
+      if (modifier === "AM" && hour === 12) hour = 0;
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+    };
+
+      const start = parseTime(startTime);
+      const end = parseTime(endTime);
+      const showButton = now >= new Date(start.getTime() - 5 * 60 * 1000) && now <= end;
+
+      setCanStart(showButton);
+    };
+
+    checkStartTime();
+    const interval = setInterval(checkStartTime, 30 * 1000); // check every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [startTime, meetingLink]);
   
   
   return (
@@ -63,8 +85,10 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
             {logo === 'teams' && <img src={Teams} alt="Teams" /> }
             {logo === 'google' && <img src={Google} alt="Google" /> }
             {logo === 'webex' && <img src={Webex} alt="Webex" /> }
-          </div>
-          <Button text="Start" size="md" color="light-black" onClick={handleClick}/>
+          </div> 
+          {meetingLink !== "No meeting link" && canStart && (
+            <Button text="Start" size="md" color="light-black" onClick={handleClick} />
+          )}
         </div>
         </div>
 

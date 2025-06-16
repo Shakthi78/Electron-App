@@ -19,10 +19,10 @@ if (process.env.NODE_ENV === 'development') {
 let primaryWindow;
 let secondaryWindow;
 let meetingWindow;
+let authWindow;
 
 let primaryDisplay;
 let secondaryDisplay;
-let authWindow;
 
 function openOnScreenKeyboard() {
   exec("osk", (error) => {
@@ -67,10 +67,10 @@ const createWindow = (display, htmlPath) => {
       frame: false,
       kiosk: true,
       webPreferences: {
-          nodeIntegration: false,
-          contextIsolation: true,
-          devTools: true,
-          preload: path.join(app.getAppPath(), '/src/electron/preload.js')
+        nodeIntegration: false,
+        contextIsolation: true,
+        devTools: true,
+        preload: path.join(app.getAppPath(), '/src/electron/preload.js')
       },       
     });
 

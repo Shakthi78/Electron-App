@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import MeetingCard from "./MeetingCard"
 import axios from "axios";
 import { webSocketService } from "../services/websocket";
+// import later from '@breejs/later';
 // import { fetchMeetings } from "../services/api";
 
 export interface Meeting {
@@ -19,6 +20,7 @@ export interface Meeting {
 
 const Meetings = () => {
     const [meetings, setMeetings] = useState<Meeting[]>([])
+    const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
 
     const roomName = localStorage.getItem('room') as string;
 
@@ -58,11 +60,64 @@ const Meetings = () => {
     
       setMeetings(sortedMeetings);
       console.log("Meetings", sortedMeetings);
+
+       // Clear old timeouts
+      timeoutRefs.current.forEach(clearTimeout);
+      timeoutRefs.current = [];
+
+      // Schedule a re-fetch after each meeting ends
+      rawMeetings.forEach((meeting) => {
+        const endTimeDate = new Date(meeting.endTime.replace(/(\d{2})-(\d{2})-(\d{4})/, "$3-$2-$1"));
+        const delay = endTimeDate.getTime() - Date.now();
+
+        if (delay > 0) {
+          const timeoutId = setTimeout(() => {
+            fetchMeetings(roomname);
+          }, delay);
+
+          timeoutRefs.current.push(timeoutId);
+        }
+      });
     }
+
+    // later.date.localTime();
+    // // Run every day at 7:00 AM IST
+    // const sched = later.parse.recur()
+    // .on(19).hour()       // 7 AM
+    // .on(12).minute();
     
+    // later.setInterval(async() => {
+    //   console.log("Task running at 7:00 AM");
+    //   console.log("Running job at 7:00 AM IST");
+    //   const response: any = await axios.post("https://exceleed.in/api/v1/re-pushMeetings", {
+    //     roomName,
+    //     email
+    //   })
+    //   if(response.data.status === 200){
+    //     fetchMeetings(roomName)
+    //   }
+    // }, sched);
+
+    function scheduleDailyTaskAt(hour: number, task: () => void) {
+      const interval = setInterval(() => {
+        const now = new Date();
+        console.log("running...")
+        console.log(now.getHours(), hour, "hrs")
+        if (now.getHours() === hour) {
+          task();
+        }
+      }, 50 * 60 * 1000); // Check every 50 min
+
+      return () => clearInterval(interval)
+    }
 
     useEffect(() => {
       fetchMeetings(roomName);
+
+      // Example: run at 7:00 AM IST
+      scheduleDailyTaskAt(7, async() => {
+        fetchMeetings(roomName)
+      });
 
       webSocketService.connect(roomName);
       const unsubscribe = webSocketService.onMessage((message) => {
@@ -71,7 +126,11 @@ const Meetings = () => {
         }
       });
 
-      return () => unsubscribe();
+      return () => {
+        unsubscribe();
+        timeoutRefs.current.forEach(clearTimeout);
+        timeoutRefs.current = [];
+      };
     }, []);
     
   return (
