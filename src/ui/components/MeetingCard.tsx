@@ -12,13 +12,13 @@ let media: MediaStream | undefined | null;
 const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, meetingLink}) => {
   const [logo, setLogo] = useState<string>("")
   const [canStart, setCanStart] = useState<boolean>(false);
-  
+
   const handleClick = async() => {
-    media = await requestMediaAccess()
+    // media = await requestMediaAccess()
     window.electronAPI.startMeeting(meetingLink);
     console.log("Meeting has started")
   }
-  
+
   useEffect(() => {
    if (meetingLink && meetingLink !== "No meeting link") {
     if (meetingLink.includes("zoom")) setLogo("zoom");
@@ -55,8 +55,8 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
 
     return () => clearInterval(interval);
   }, [startTime, meetingLink]);
-  
-  
+
+
   return (
     <div className="bg-black/30 backdrop-blur-md rounded-xl p-6 text-white shadow-lg border border-white/10 w-full max-w-lg">
         {/* <div className="flex items-center space-x-3 mb-4">
@@ -68,12 +68,12 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-medium">{title}</h3>
           </div>
-          
+
           <div className="flex items-center space-x-2 text-gray-200">
             <Calendar size={18} />
             <span>{startTime} - {endTime}</span>
           </div>
-          
+
           <div className="flex items-center space-x-2 text-gray-200">
             <User size={18} />
             <span>Organized by {organizer}</span>
@@ -85,7 +85,7 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
             {logo === 'teams' && <img src={Teams} alt="Teams" /> }
             {logo === 'google' && <img src={Google} alt="Google" /> }
             {logo === 'webex' && <img src={Webex} alt="Webex" /> }
-          </div> 
+          </div>
           {meetingLink !== "No meeting link" && canStart && (
             <Button text="Start" size="md" color="light-black" onClick={handleClick} />
           )}
@@ -103,7 +103,7 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
     //         </div>
     //         <h1 className="text-medium font-light select-none">{organizer}</h1>
     //       </div>
-          
+
     //     </div>
     //     <div className="flex flex-col items-center text-center gap-7 mt-4">
     //       <div className="w-10 h-3 flex justify-center items-center select-none">
@@ -129,12 +129,12 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
     //           in {formatMinutesAsTime(minutesUntil)}
     //         </span>
     //       </div>
-          
+
     //       <div className="flex items-center space-x-2 text-gray-200">
     //         <Calendar size={18} />
     //         <span>{startTime} - {endTime}</span>
     //       </div>
-          
+
     //       <div className="flex items-center space-x-2 text-gray-200">
     //         <User size={18} />
     //         <span>Organized by {organizer}</span>
@@ -158,23 +158,23 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
 
 export default MeetingCard
 
-async function requestMediaAccess() {
-  try {
-    console.log("Requesting media devices in renderer...");
-    const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: true,
-    });
-    console.log('Media access granted:', stream);
-    return stream;
-  } catch (error: any) {
-    console.error('Media access denied:', error.name, error.message);
-  }
-}
+// async function requestMediaAccess() {
+//   try {
+//     console.log("Requesting media devices in renderer...");
+//     const stream = await navigator.mediaDevices.getUserMedia({
+//         audio: true,
+//         video: true,
+//     });
+//     console.log('Media access granted:', stream);
+//     return stream;
+//   } catch (error: any) {
+//     console.error('Media access denied:', error.name, error.message);
+//   }
+// }
 
 export function stopMediaAccess() {
   if (media) {
-    media.getTracks().forEach((track : any) => track.stop());
+    media.getTracks().forEach((track) => track.stop());
     console.log('Media stream stopped.');
     media = null;
   }
