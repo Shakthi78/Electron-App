@@ -8,7 +8,7 @@ import TimeDisplay from "../components/TimeDisplay"
 import TimeZoneDisplay from "../components/TimeZoneDisplay"
 import Sidebar  from "../components/Sidebar"
 import MeetingDialog from "../components/dialog-components/MeetingDialog"
-import Touchpad from "../components/dialog-components/Touchpad"
+// import Touchpad from "../components/dialog-components/Touchpad"
 import { Tablet, Video } from "lucide-react"
 import QuickAction from "../components/QuickAction"
 import { timeZones } from "../data/timezones"
@@ -17,7 +17,7 @@ import { DeviceAlerts } from '../components/alert-components/DeviceAlerts'
 const Home = ({worldClock}: {worldClock: boolean}) => {
   const [roomName, setRoomName] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isTouch, setIsTouch] = useState(false)
+  // const [isTouch, setIsTouch] = useState(false)
   const [capacity, setCapacity] = useState<string>("")
 
   useEffect(() => {
@@ -46,16 +46,31 @@ const Home = ({worldClock}: {worldClock: boolean}) => {
     {
       label: 'Touchpad',
       icon: <Tablet size={24} />,
-      onClick: () => setIsTouch(true),
+      onClick: handleTouchpadClick,
     }
   ];
+
+  let lastTouchTime = 0;
+
+  function handleTouchpadClick() {
+    const now = Date.now();
+    if (now - lastTouchTime < 1000) return; // 1 second cooldown
+    lastTouchTime = now;
+
+    console.log("Touchpad click triggered:");
+    const xAxis = localStorage.getItem("X-axis")
+    const yAxis = localStorage.getItem("Y-axis")
+    // window.electronAPI.touchpad(1035, 691);
+    window.electronAPI.touchpad(xAxis, yAxis);
+  }
 
   return (
     <>
       <AnimatedBackground />
       
       {isDialogOpen && <MeetingDialog onClose={() => setIsDialogOpen(false)} />}
-      {isTouch && <Touchpad onClose={() => setIsTouch(false)} />}
+      {/* {isTouch && <Touchpad onClose={() => setIsTouch(false)} />} */}
+
             
       <div className="min-h-screen flex flex-col relative p-8">
         <BrandingBar />

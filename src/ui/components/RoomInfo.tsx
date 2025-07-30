@@ -7,7 +7,7 @@ interface RoomInfoProps {
 }
 
 const RoomInfo: React.FC<RoomInfoProps> = ({ roomName, capacity }) => {
-  console.log("capacityRoom",capacity)
+  // console.log("capacityRoom",capacity)
   return (
     <div className="flex flex-col">
       <div className="flex items-center space-x-2">

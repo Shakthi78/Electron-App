@@ -9,16 +9,14 @@ const {
 } = require("electron");
 const path = require("node:path");
 const getNetworkInfo = require("./network");
-const { exec } = require("child_process");
+const { exec, execFile } = require("child_process");
 const robot = require("robotjs");
-const CDP = require("chrome-remote-interface");
-const fs = require("fs");
-const { launchMeeting, executeControl,closeMeeting } = require("./puppeteer-launcher");
+const { launchMeeting, executeControl,closeMeeting, launchTeamsMeeting } = require("./puppeteer-launcher");
 
 // Resolve the path to nircmd.exe
 let nircmdPath;
-let dev = true;
-if (dev) {
+let isDev = true;
+if (isDev) {
   // Development mode: Use relative path
   console.log("development");
   nircmdPath = path.join(__dirname, "assets", "nircmd.exe");
@@ -62,6 +60,11 @@ function hideTaskbar() {
       }
     }
   );
+
+  exec(`"${nircmdPath}" win hide class Shell_SecondaryTrayWnd`, (err) => {
+    if (err) console.error("Failed to hide secondary taskbar(s):", err);
+    else console.log("Secondary taskbar(s) hidden");
+  });
 }
 
 // Function to show the taskbar (optional, for cleanup on app exit)
@@ -269,7 +272,7 @@ const createAuthWindow = (display, url) => {
     const currentUrl = win.webContents.getURL();
     console.log("Page loaded:", currentUrl);
 
-    if (currentUrl.startsWith("https://exceleed.in/api/v1/auth/redirect")) {
+    if (currentUrl.startsWith("https://exceleed.in/api/v1/auth/redirect") || currentUrl.startsWith("https://shakthi.online/api/v1/auth/microsoft/redirect")) {
       try {
         // Execute JavaScript in the window to get the page content
         const content = await win.webContents.executeJavaScript(
@@ -381,6 +384,59 @@ app.whenReady().then(async () => {
 
 // IPC handlers
 // Handle moving the mouse
+
+ipcMain.handle("touchpad", (event, x, y)=>{
+  let scriptPath ;
+  if(isDev){
+      scriptPath = path.join(__dirname, 'click-touchpad.ps1');
+  }else {
+  // Production mode: Use resources path
+    scriptPath = path.join(
+      process.resourcesPath,
+      "src",
+      "electron",
+      "click-touchpad.ps1"
+    );
+  }
+
+  // 2. Bring it to front temporarily
+  exec(`"${nircmdPath}" win activate class Shell_TrayWnd`, (err) => {
+    if (err) return console.error("Activate taskbar failed:", err);
+    console.log("Taskbar shown and activated");
+  });
+
+
+  execFile('powershell.exe', [
+    '-NoProfile',
+    '-ExecutionPolicy', 'Bypass',
+    '-File', scriptPath,
+    '-x', x.toString(),
+    '-y', y.toString()
+    ], (error, stdout, stderr) => {
+    if (error) {
+    console.error('PowerShell error:', error);
+    } else {
+    console.log('PowerShell output:', stdout);
+    }
+  });
+
+  
+  setTimeout(() => {
+    console.log("Simulating left");
+    robot.mouseClick("left");
+
+    exec(`"${nircmdPath}" win hide class Shell_TrayWnd`, (err) => {
+      if (err) return console.error("Hide taskbar failed:", err);
+      console.log("Taskbar hidden");
+    });
+
+    exec(`"${nircmdPath}" win hide class Shell_SecondaryTrayWnd`, (err) => {
+      if (err) console.error("Failed to hide secondary taskbar(s):", err);
+      else console.log("Secondary taskbar(s) hidden");
+    });
+  }, 1000);
+})
+
 ipcMain.handle("move-mouse", (_, deltaX, deltaY) => {
   // Get the current mouse position
   const { x: currentX, y: currentY } = robot.getMousePos();
@@ -548,113 +604,52 @@ ipcMain.on("start-meeting", async (event, url) => {
     console.error("Failed to start meeting:", err);
     event.reply("meeting-error", err.message); // Optional: send error to UI
   }
+  
 });
 
-
-// ipcMain.on("start-meeting", async (event, url) => {
-//   console.log(`Chrome launched 1`);
-//   // Optional: Load UI in secondary window
-//   loadRouteInWindow(secondaryWindow, "controls");
-//   const chromePath = `"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"`; // Adjust path if needed
-
-//   const chromeArgs = [
-//     "--new-window",
-//     "--start-fullscreen", // true fullscreen
-//     "--window-position=0,0",
-//     "--window-size=1920,1080",
-//     "--remote-debugging-port=9222", // Required for injection
-//     "--user-data-dir=C:\\Temp\\ChromeProfile", // Optional, persistent login
-//     `--app="${url}"`,
-//   ].join(" ");
-
-//   // 1. Launch Chrome
-//   exec(`${chromePath} ${chromeArgs}`, async (error) => {
-//     if (error) {
-//       console.error(`Error launching Chrome: ${error.message}`);
-//       return;
-//     }
-
-//     console.log(`Chrome launched 2`);
-//     // Optional: Load UI in secondary window
-//     // loadRouteInWindow(secondaryWindow, "controls");
-
-//     // 2. Wait 3 seconds to allow Chrome to load
-//     await new Promise((res) => setTimeout(res, 3000));
-
-//     try {
-//       const tabs = await CDP.List();
-//       const targetTab = tabs.find((tab) =>
-//         tab.url.includes(new URL(url).hostname)
-//       );
-
-//       if (!targetTab) {
-//         console.error("No matching tab found.");
-//         return;
-//       }
-
-//       const client = await CDP({ target: targetTab });
-//       const { Runtime } = client;
-//       await Runtime.enable();
-
-//       // 3. Load your script
-//       const injectPath = path.join(
-//         app.getAppPath(),
-//         "/src/electron/meeting-preload.js"
-//       );
-//       const script = fs.readFileSync(injectPath, "utf8");
-
-//       // Wrap in IIFE if not already
-//       const finalScript = `(function(){\n${script}\n})();`;
-
-//       // 4. Inject the script
-//       const { exceptionDetails } = await Runtime.evaluate({
-//         expression: finalScript,
-//       });
-
-//       if (exceptionDetails) {
-//         console.error("Script injection failed:", exceptionDetails);
-//       } else {
-//         console.log("Script injected successfully.");
-//       }
-
-//       await client.close();
-//     } catch (err) {
-//       console.error("CDP injection error:", err);
-//     }
-//   });
-// });
-
-ipcMain.on("teams-meeting", (event, url, data) => {
-  // if(primaryWindow){
-  //     meetingWindow = createMeetingWindow(primaryDisplay, url)
-  //     console.log("data", data)
-  //     meetingWindow.webContents.send('fill-meeting-details', {
-  //       meetingId: data.meetingId,
-  //       passcode: data.password
-  //     });
-  // }
-  // if(secondaryWindow){
-  //     loadRouteInWindow(secondaryWindow, 'controls')
-  // }
-  let value = false;
-  if (primaryWindow) {
-    if (secondaryWindow) {
-      value = true;
-      meetingWindow = createMeetingWindow(primaryDisplay, url, value);
-      meetingWindow.webContents.send("fill-meeting-details", {
-        meetingId: data.meetingId,
-        passcode: data.password,
-      });
-      loadRouteInWindow(secondaryWindow, "controls");
-    } else {
-      meetingWindow = createMeetingWindow(primaryDisplay, url, value);
-      meetingWindow.webContents.send("fill-meeting-details", {
-        meetingId: data.meetingId,
-        passcode: data.password,
-      });
-    }
+ipcMain.on("teams-meeting", async(event, url, data) => {
+  try {
+    const {meetingId, password} = data
+    loadRouteInWindow(secondaryWindow, 'controls');
+    console.log("Starting meeting:", url);
+    await launchTeamsMeeting(url, meetingId, password);
+  } catch (err) {
+    console.error("Failed to start meeting:", err);
+    event.reply("meeting-error", err.message); // Optional: send error to UI
   }
-});
+})
+
+// ipcMain.on("teams-meeting", (event, url, data) => {
+//   // if(primaryWindow){
+//   //     meetingWindow = createMeetingWindow(primaryDisplay, url)
+//   //     console.log("data", data)
+//   //     meetingWindow.webContents.send('fill-meeting-details', {
+//   //       meetingId: data.meetingId,
+//   //       passcode: data.password
+//   //     });
+//   // }
+//   // if(secondaryWindow){
+//   //     loadRouteInWindow(secondaryWindow, 'controls')
+//   // }
+//   let value = false;
+//   if (primaryWindow) {
+//     if (secondaryWindow) {
+//       value = true;
+//       meetingWindow = createMeetingWindow(primaryDisplay, url, value);
+//       meetingWindow.webContents.send("fill-meeting-details", {
+//         meetingId: data.meetingId,
+//         passcode: data.password,
+//       });
+//       loadRouteInWindow(secondaryWindow, "controls");
+//     } else {
+//       meetingWindow = createMeetingWindow(primaryDisplay, url, value);
+//       meetingWindow.webContents.send("fill-meeting-details", {
+//         meetingId: data.meetingId,
+//         passcode: data.password,
+//       });
+//     }
+//   }
+// });
 
 // ipcMain.on("close-meeting", () => {
 //   if (secondaryWindow) {
@@ -671,7 +666,8 @@ ipcMain.on("teams-meeting", (event, url, data) => {
 //     }
 //   }
 // });
- ipcMain.on("close-meeting", async () => {
+ 
+ipcMain.on("close-meeting", async () => {
   if (secondaryWindow) {
     loadRouteInWindow(secondaryWindow, "/");
     try {

@@ -7,7 +7,7 @@ import { webSocketService } from "../services/websocket";
 
 export interface Meeting {
   id?: number;
-  roomMail: string;
+  roomMail?: string;
   userEmail: string;
   meetingId: string;
   title: string;
@@ -22,7 +22,8 @@ const Meetings = () => {
     const [meetings, setMeetings] = useState<Meeting[]>([])
     const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
 
-    const roomName = localStorage.getItem('room') as string;
+    const roomName = localStorage.getItem('room') as string
+
 
     const fetchMeetings = async (roomname: string) => {
       const response: any = await axios.get(`https://exceleed.in/api/v1/meetings/${roomname}`);
@@ -38,20 +39,23 @@ const Meetings = () => {
     
       // Get current time
       const now = new Date();
+
+      console.log("rawMeetings", rawMeetings)
     
       // Parse, filter, sort, and format meetings
       const sortedMeetings = rawMeetings
-        .map((meeting) => {
+        .map((meeting: any) => {
           // Convert DD-MM-YYYY to YYYY-MM-DD format for Date parsing
           const startTimeDate = new Date(meeting.startTime.replace(/(\d{2})-(\d{2})-(\d{4})/, "$3-$2-$1"));
           const endTimeDate = new Date(meeting.endTime.replace(/(\d{2})-(\d{2})-(\d{4})/, "$3-$2-$1"));
     
           return { ...meeting, startTimeDate, endTimeDate };
         })
-        .filter(({ startTimeDate, endTimeDate }) => 
-          startTimeDate >= today6AM && startTimeDate < tomorrow6AM && endTimeDate > now // Remove past meetings
+        .filter(({ startTimeDate, endTimeDate, responseStatus }: any) => 
+          //Changed 27/06/2025
+          startTimeDate >= today6AM && startTimeDate < tomorrow6AM && endTimeDate > now && responseStatus === "accepted" // Remove past meetings
         )
-        .sort((a, b) => a.startTimeDate.getTime() - b.startTimeDate.getTime()) // Sort by startTime
+        .sort((a: any, b: any) => a.startTimeDate.getTime() - b.startTimeDate.getTime()) // Sort by startTime
         .map(({ startTimeDate, endTimeDate, ...meeting }) => ({
           ...meeting,
           startTime: startTimeDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true }),
@@ -61,7 +65,7 @@ const Meetings = () => {
       setMeetings(sortedMeetings);
       console.log("Meetings", sortedMeetings);
 
-       // Clear old timeouts
+      // Clear old timeouts
       timeoutRefs.current.forEach(clearTimeout);
       timeoutRefs.current = [];
 
@@ -80,23 +84,6 @@ const Meetings = () => {
       });
     }
 
-    // later.date.localTime();
-    // // Run every day at 7:00 AM IST
-    // const sched = later.parse.recur()
-    // .on(19).hour()       // 7 AM
-    // .on(12).minute();
-    
-    // later.setInterval(async() => {
-    //   console.log("Task running at 7:00 AM");
-    //   console.log("Running job at 7:00 AM IST");
-    //   const response: any = await axios.post("https://exceleed.in/api/v1/re-pushMeetings", {
-    //     roomName,
-    //     email
-    //   })
-    //   if(response.data.status === 200){
-    //     fetchMeetings(roomName)
-    //   }
-    // }, sched);
 
     function scheduleDailyTaskAt(hour: number, task: () => void) {
       const interval = setInterval(() => {
@@ -122,7 +109,10 @@ const Meetings = () => {
       webSocketService.connect(roomName);
       const unsubscribe = webSocketService.onMessage((message) => {
         if (message.type === 'EVENT_UPDATE' && message.roomName === roomName) {
-          fetchMeetings(roomName);
+          setTimeout(()=>{
+            console.log("Executing notified event")
+            fetchMeetings(roomName);
+          }, 1000)
         }
       });
 

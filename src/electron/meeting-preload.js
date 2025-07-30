@@ -36,8 +36,13 @@
                     (document.querySelector('[aria-label="Turn camera on"]') ||
                      document.querySelector('[aria-label="Turn camera off"]'))?.click();
                     break;
+                case 'hand':
+                    (document.querySelector('[aria-label="Raise your hand"]') ||
+                     document.querySelector('[aria-label="Lower your hand"]') ||
+                     document.querySelector('[aria-label="Raise"]'))?.click();
+                    break;
                 case 'leave':
-                    document.querySelector('[aria-label="Leave (Ctrl+Shift+H)"]')?.click();
+                    document.querySelector('[id="hangup-button"]')?.click();
                     break;
             }
         }
@@ -115,7 +120,7 @@
             pollForButton('div[role="button"], button', 'ask to join');
             pollForButton('div[role="button"], button', 'other ways to join');
             pollForButton('div[role="button"], button', 'join here too');
-        } else if (url.includes('teams.live.com') || url.includes('teams')) {
+        } else if (url.includes('teams.live.com') || url.includes('teams.microsoft.com')) {
             pollForButton('[aria-label="Join meeting from this browser"], button[data-tid*="joinOnWeb"]', 'continue');
             pollForButton('[aria-label="Join now"], button[data-tid*="join"]', 'join');
         } else if (url.includes('zoom.us')) {
@@ -129,3 +134,47 @@
     window.addEventListener("load", autoJoin);
     autoJoin();
 })();
+
+function injectTeamsGuestName(attempt = 0) {
+    console.log(window.guestName, "window.guestName")
+
+    const pollForButton = (selector, textFilter, callback) => {
+        const interval = setInterval(() => {
+            const buttons = document.querySelectorAll(selector);
+            const target = Array.from(buttons).find(el =>
+                el.textContent.trim().toLowerCase().includes(textFilter.toLowerCase())
+            );
+            if (target) {
+                target.click();
+                console.log("Clicked:", textFilter);
+                clearInterval(interval);
+                if (callback) callback();
+            }
+        }, 3000);
+    };
+
+    const nameInput = document.querySelector('input[data-tid="prejoin-display-name-input"]');
+
+    if (!nameInput || !joinBtn) {
+        if (attempt > 20) return;
+        return setTimeout(() => injectTeamsGuestName(attempt + 1), 500);
+    }
+
+    const setNativeValue = (el, value) => {
+        const lastValue = el.value;
+        el.value = value;
+        const tracker = el._valueTracker;
+        if (tracker) {
+        tracker.setValue(lastValue);
+        }
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+
+    setNativeValue(nameInput, window.guestName || "OneRoom Console");
+    console.log(window.guestName, "window.guestName")
+
+    pollForButton('[aria-label="Join now"], button[data-tid*="join"]', 'join');
+
+}
+

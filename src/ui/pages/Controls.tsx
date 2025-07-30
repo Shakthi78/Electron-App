@@ -6,8 +6,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Mic, MicOff, Video, VideoOff, Volume2, VolumeOff, Plus, Minus, Tablet } from 'lucide-react';
 import { Slider } from "radix-ui";
 // import { LuTouchpad } from 'react-icons/lu';
-import Touchpad from "../components/dialog-components/Touchpad"
-import { FaRegKeyboard } from 'react-icons/fa';
+// import Touchpad from "../components/dialog-components/Touchpad"
+// import { FaRegKeyboard } from 'react-icons/fa';
 import AnimatedBackground from '../components/AnimatedBackground';
 import RoomInfo from '../components/RoomInfo';
 
@@ -23,7 +23,7 @@ function Controls() {
   const [volume, setVolume] = useState(0);
   const [speaker, setSpeaker] = useState(false);
 
-  const [isTouch, setIsTouch] = useState(false)
+  // const [isTouch, setIsTouch] = useState(false)
 
   const increaseVolume = () => {
     window.electronAPI.increaseVolume();
@@ -79,8 +79,6 @@ function Controls() {
   }).catch((error:any) => console.error("Failed to get initial volume:", error));
   }, [])
 
-  console.log("volume", volume)
-
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -98,6 +96,20 @@ function Controls() {
       }, 1000);
     }
   };
+
+  let lastTouchTime = 0;
+
+  function handleTouchpadClick() {
+    const now = Date.now();
+    if (now - lastTouchTime < 1000) return; // 1 second cooldown
+    lastTouchTime = now;
+    const xAxis = localStorage.getItem("X-axis")
+    const yAxis = localStorage.getItem("Y-axis")
+
+    console.log("Touchpad click triggered:");
+
+    window.electronAPI.touchpad(xAxis, yAxis);
+  }
 
   // Reset the stopwatch
   const resetStopwatch = () => {
@@ -160,9 +172,9 @@ function Controls() {
           <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-1/3 h-20' onClick={() => {setSpeaker(!speaker); window.electronAPI.toggleMute()}}>
           {speaker === false ? <Volume2 size={"40px"}/>: <VolumeOff size={"40px"}/>}
           </div>
-          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-1/3 h-20' onClick={()=> window.electronAPI.openKeyboard()}>
+          {/* <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-1/3 h-20' onClick={()=> window.electronAPI.openKeyboard()}>
             <FaRegKeyboard size={"30px"}/>
-          </div>
+          </div> */}
         </div>
         <div className=' h-15 rounded-xl w-2/4 text-white flex gap-2'>
           {/* <div className='bg-zinc-900 rounded-xl flex justify-center items-center w-[15%] h-15'>
@@ -185,11 +197,11 @@ function Controls() {
           <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-[15%] h-15 ' onClick={increaseVolume}>
             <Plus size={"30px"}/>
           </div>
-          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-[20%] h-15 ' onClick={() => setIsTouch(true)}>
+          <div className='bg-black/50 backdrop-blur-sm hover:bg-black/70 rounded-lg text-white border border-white/10 transition-all flex justify-center items-center w-[20%] h-15 ' onClick={handleTouchpadClick}>
             {/* <Button icon={<LuTouchpad size={"30px"}/>} text="Touchpad" size="lg" color="black" onClick={() => setIsTouch(true)} /> */}
             <Tablet size={24} />
           </div>
-            {isTouch && <Touchpad onClose={() => setIsTouch(false)} />}  
+            {/* {isTouch && <Touchpad onClose={() => setIsTouch(false)} />}   */}
         </div>
       </div>     
       <div className='w-full h-10 flex justify-start px-5 hover:cursor-pointer'>

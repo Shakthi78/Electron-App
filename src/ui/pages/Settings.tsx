@@ -187,7 +187,7 @@ const Settings = () => {
                       <option value="google">Google Calendar</option>
                   </select>
                   <div className="flex justify-center items-center">
-                    <Button type={"submit"} text="Activate" size="md" />
+                    <Button type={"submit"} text="Activate" size="md" color="blue" />
                   </div>
                   </div>
               </form>

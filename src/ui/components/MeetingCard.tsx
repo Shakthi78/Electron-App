@@ -15,7 +15,28 @@ const MeetingCard: React.FC<Meeting> = ({title, startTime, endTime, organizer, m
 
   const handleClick = async() => {
     // media = await requestMediaAccess()
-    window.electronAPI.startMeeting(meetingLink);
+    let normalizedUrl = meetingLink;
+    if (meetingLink.includes("app.zoom.us")) {
+      normalizedUrl = meetingLink;
+    } else if (meetingLink.includes("zoom.us")) {
+      // Extract meeting ID and password (if present) from the original URL
+      const urlObj = new URL(meetingLink);
+      const meetingId = urlObj.pathname.split("/j/")[1]?.split("?")[0] || "";
+      const pwd = urlObj.searchParams.get("pwd") || "";
+
+      // Construct the web client URL
+      normalizedUrl = `https://app.zoom.us/wc/${meetingId}/join`;
+      if (pwd) {
+        normalizedUrl += `?pwd=${encodeURIComponent(pwd)}`;
+      }
+    }else if (
+      meetingLink.includes("teams.microsoft.com") ||
+      meetingLink.includes("teams.live.com") ||
+      meetingLink.includes("microsoft")
+    ) {
+      normalizedUrl = meetingLink; // Teams doesn’t need normalization
+    }
+    window.electronAPI.startMeeting(normalizedUrl);
     console.log("Meeting has started")
   }
 

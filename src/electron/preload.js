@@ -25,6 +25,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   moveMouse: (x, y) => ipcRenderer.invoke('move-mouse', x, y),
   mouseClick: (button) => ipcRenderer.invoke('mouse-click', button),
   toggleMute: () => ipcRenderer.invoke("toggle-mute"),
+  touchpad: (x, y)=> ipcRenderer.invoke("touchpad", x, y)
 })
 
 ipcRenderer.on('fill-meeting-details', (event, { meetingId, passcode }) => {

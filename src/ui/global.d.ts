@@ -22,6 +22,7 @@
         moveMouse: (x, y) => void,
         mouseClick: (button) => void,
         toggleMute: () => void;
+        touchpad: (x, y)=> void
       };
     }
   }
